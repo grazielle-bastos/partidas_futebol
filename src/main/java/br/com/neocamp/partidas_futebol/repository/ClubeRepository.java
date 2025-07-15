@@ -16,8 +16,11 @@ public interface ClubeRepository extends JpaRepository<Clube, Long> {
     // Metodo que busca clubes por sigla do estado
     List<Clube> findBySiglaEstado(String siglaEstado);
 
-    // Metodo que busca clubes ativos usando @Query (JPQL)
-    // JPQL é uma linguagem de consulta orientada a objetos, similar ao SQL, mas usando os nomes das entidades e atributos em vez dos nomes das tabelas e colunas
+    // Metodo que busca clubes ativos usando @Query (SQL nativo)
     @Query("SELECT c FROM Clube c WHERE c.ativo = true")
     List<Clube> buscarClubesAtivos();
+
+    // Metodo que busca clubes por nome e sigla do estado
+    Optional<Clube> findByNomeAndSiglaEstado(String nome, String siglaEstado);
+
 }

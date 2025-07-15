@@ -24,9 +24,6 @@ public class ClubeController {
         this.clubeService = clubeService;
     }
 
-    @GetMapping()
-    public void getCadastrarClubes() {}
-
     @PostMapping
     public ResponseEntity<ClubeResponseDto> cadastrarClubes(@RequestBody ClubeRequestDto clubeRequestDto) {
         // Recebe o DTO do clube pelo corpo da requisição
@@ -75,4 +72,3 @@ public class ClubeController {
     }
 
 }
-

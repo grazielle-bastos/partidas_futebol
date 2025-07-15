@@ -3,10 +3,14 @@ package br.com.neocamp.partidas_futebol.service;
 import br.com.neocamp.partidas_futebol.dto.ClubeResponseDto;
 import br.com.neocamp.partidas_futebol.dto.ClubeRequestDto;
 import br.com.neocamp.partidas_futebol.entity.Clube;
+import br.com.neocamp.partidas_futebol.enums.EstadosBrasil;
 import br.com.neocamp.partidas_futebol.repository.ClubeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +18,7 @@ import java.util.Optional;
 @Service
 public class ClubeService {
 
+    // Injeção de dependência do repository
     private final ClubeRepository clubeRepository;
 
     @Autowired
@@ -22,10 +27,28 @@ public class ClubeService {
     }
 
     public ClubeResponseDto salvar(ClubeRequestDto clubeDto) {
-        // Aqui podem ser feitas validações ou regras de negócio
+        // Validações de negócio
+        if (clubeDto.getNome() == null || clubeDto.getNome().trim().isEmpty() || clubeDto.getSiglaEstado() == null || clubeDto.getSiglaEstado().trim().isEmpty() || clubeDto.getDataCriacao() == null  || clubeDto.getAtivo() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos são obrigatórios e não podem ser vazios");
+        }
+        if (clubeDto.getNome().trim().length() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome inválido: deve ter no mínimo 2 caracteres");
+        }
+        // Chamada do metodo auxiliar que valida a sigla do estado usando o enum EstadosBrasil
+        validarSiglaEstado(clubeDto.getSiglaEstado());
+        // Verifica se a data de criação é no futuro
+        if (clubeDto.getDataCriacao().isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro");
+        }
+        //Verifica duplicidade de clube por nome no mesmo estado
+        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(clubeDto.getNome().trim(), clubeDto.getSiglaEstado().trim().toUpperCase());
+        if(clubeExistente.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado");
+        }
+        // Cria um novo clube com os dados do DTO
         Clube clube = new Clube(
                 clubeDto.getNome(),
-                clubeDto.getSiglaEstado(),
+                clubeDto.getSiglaEstado().trim().toUpperCase(),
                 clubeDto.getDataCriacao(),
                 clubeDto.getAtivo()
         );
@@ -47,9 +70,26 @@ public class ClubeService {
     public ClubeResponseDto atualizarPorId(Long id, ClubeRequestDto clubeAtualizado) {
         // Busca o clube pelo ID usando o repository
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
+        // Verifica se o clube foi encontrado
+        if (clubeOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
+        }
+        // Converte o DTO para entidade e atualiza os campos do clube encontrado
+        Clube clube = clubeOptional.get();
+        // Validações de negócio para os campos que podem ser atualizados
+        if (clubeAtualizado.getNome() == null || clubeAtualizado.getNome().trim().length() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome inválido: deve ter no mínimo 2 caracteres");
+        }
+        // Chamada do metodo auxiliar que valida a sigla do estado usando o enum EstadosBrasil
+        validarSiglaEstado(clubeAtualizado.getSiglaEstado());
+        // Verifica se a data de criação é no futuro
+        if (clubeAtualizado.getDataCriacao() == null || clubeAtualizado.getDataCriacao().isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Data de criação inválida: não pode ser no futuro");
+        }
+
+
         // Se encontrar, atualiza os dados do clube
         if (clubeOptional.isPresent()) {
-            Clube clube = clubeOptional.get();
             // Atualiza os campos do clube
             clube.setNome(clubeAtualizado.getNome());
             clube.setSiglaEstado(clubeAtualizado.getSiglaEstado());
@@ -98,6 +138,15 @@ public class ClubeService {
                 clube.getDataCriacao(),
                 clube.getAtivo()
         );
+    }
+
+    // Metodo auxiliar para validar a sigla do estado
+    private void validarSiglaEstado(String siglaEstado) {
+        try {
+            EstadosBrasil.valueOf(siglaEstado.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla do estado inválida: deve ser uma sigla válida de um estado do Brasil");
+        }
     }
 
 }
