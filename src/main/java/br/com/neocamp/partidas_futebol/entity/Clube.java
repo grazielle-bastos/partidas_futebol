@@ -9,10 +9,12 @@ import jakarta.persistence.Column;
 
 import java.time.LocalDate;
 
+// Entidade Clube, com seus atributos e anotações para mapeamento do JPA
 @Entity
 @Table(name="clube")
 public class Clube {
 
+    // Atributo id com anotações para mapeamento do JPA
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,8 +31,10 @@ public class Clube {
     @Column(nullable = false)
     private Boolean ativo;
 
+    // Construtor vazio da entidade Clube
     public Clube(){}
 
+    // Construtor com todos os atributos da entidade Clube
     public Clube(String nome, String siglaEstado, LocalDate dataCriacao, Boolean ativo) {
         this.nome = nome;
         this.siglaEstado = siglaEstado;
@@ -38,6 +42,7 @@ public class Clube {
         this.ativo = ativo;
     }
 
+    // Construtor com todos os atributos da entidade Clube, incluindo o id
     public Clube(Long id, String nome, String siglaEstado, LocalDate dataCriacao, Boolean ativo) {
         this.id = id;
         this.nome = nome;
@@ -46,6 +51,7 @@ public class Clube {
         this.ativo = ativo;
     }
 
+    // Getters e setters dos atributos da entidade Clube
     public Long getId() {
         return id;
     }

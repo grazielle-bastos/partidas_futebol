@@ -2,16 +2,21 @@ package br.com.neocamp.partidas_futebol.dto;
 
 import java.time.LocalDate;
 
+// DTO de requisição de clube
 public class ClubeRequestDto {
 
+    // Atributos do DTO de requisição de clube
     private Long id;
     private String nome;
     private String siglaEstado;
     private LocalDate dataCriacao;
     private Boolean ativo;
 
+    // Construtor vazio do DTO de requisição de clube
+    // Necessário para o Spring fazer a conversão do JSON da requisição para o objeto DTO
     public ClubeRequestDto() {}
 
+    // Construtor com todos os atributos do DTO de requisição de clube
     public ClubeRequestDto(Long id, String nome, String siglaEstado, LocalDate dataCriacao, Boolean ativo) {
         this.id = id;
         this.nome = nome;
@@ -20,6 +25,8 @@ public class ClubeRequestDto {
         this.ativo = ativo;
     }
 
+    // Getters e setters dos atributos do DTO de requisição de clube
+    // Necessários para o Spring fazer a conversão do JSON da requisição para o objeto DTO
     public Long getId() {
         return id;
     }

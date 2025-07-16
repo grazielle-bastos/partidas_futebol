@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,12 +61,10 @@ public class ClubeService {
         // Busca o clube pelo ID usando o repository
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
         // Se encontrar, retorna o clube
-        if (clubeOptional.isPresent()) {
-            return toResponseDto(clubeOptional.get());
-        } else {
-            // Se não encontrar, lança exceção
-            throw new RuntimeException("Clube não encontrado");
+        if (clubeOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
         }
+        return toResponseDto(clubeOptional.get());
     }
 
     public ClubeResponseDto atualizarPorId(Long id, ClubeRequestDto clubeAtualizado) {
@@ -87,46 +87,76 @@ public class ClubeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Data de criação inválida: não pode ser no futuro");
         }
 
+        // TODO: Validar se a nova data de criação é posterior à data de alguma partida já registrada para este clube (requisito de cenários de exceção do projeto - 409 Conflict)
 
-        // Se encontrar, atualiza os dados do clube
-        if (clubeOptional.isPresent()) {
-            // Atualiza os campos do clube
-            clube.setNome(clubeAtualizado.getNome());
-            clube.setSiglaEstado(clubeAtualizado.getSiglaEstado());
-            clube.setDataCriacao(clubeAtualizado.getDataCriacao());
-            clube.setAtivo(clubeAtualizado.getAtivo());
-            // Salva o clube atualizado
-            Clube clubeSalvo = clubeRepository.save(clube);
-            // Retorna o clube atualizado convertido para DTO
-            return toResponseDto(clubeSalvo);
-        } else {
-            throw new RuntimeException("Clube não encontrado");
+        // Validação de duplicidade: impede atualizar para um nome/estado que já existe em outro clube (ID diferente), mas permite atualizar o próprio clube mesmo que o nome/estado não mudem.
+        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(clubeAtualizado.getNome().trim(), clubeAtualizado.getSiglaEstado().trim().toUpperCase());
+        if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado");
         }
+        // Atualiza os campos do clube
+        clube.setNome(clubeAtualizado.getNome());
+        clube.setSiglaEstado(clubeAtualizado.getSiglaEstado());
+        clube.setDataCriacao(clubeAtualizado.getDataCriacao());
+        clube.setAtivo(clubeAtualizado.getAtivo());
+        // Salva o clube atualizado
+        Clube clubeSalvo = clubeRepository.save(clube);
+        // Retorna o clube atualizado convertido para DTO
+        return toResponseDto(clubeSalvo);
     }
 
     public void inativarClubePorId(Long id) {
         // Busca o clube pelo ID usando o repository
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
-        // Se encontrar, inativa o clube
-        if (clubeOptional.isPresent()) {
-            Clube clube = clubeOptional.get();
-            clube.setAtivo(false);
-            clubeRepository.save(clube);
-        } else {
-            throw new RuntimeException("Clube não encontrado");
+        if (clubeOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
         }
+        // Se encontrar, inativa o clube
+        Clube clube = clubeOptional.get();
+        clube.setAtivo(false);
+        clubeRepository.save(clube);
     }
 
-    public List<ClubeResponseDto> listarClubesAtivos() {
-        // Chama o metodo do repository, e recebe uma lista de clubes com o campo ativo = true
-        List<Clube> clubesAtivos = clubeRepository.buscarClubesAtivos();
-        // Cria uma lista de clubes DTO vazia, para adicionar os clubes convertidos
-        List<ClubeResponseDto> clubesDto = new ArrayList<>();
-        // Para cada clube na lista de clubes ativos, converte para DTO e adiciona na lista de clubes DTO, usando o metodo auxiliar toResponseDto
-        for (Clube clube : clubesAtivos) {
-            clubesDto.add(toResponseDto(clube));
+    // Metodo para listar clubes de acordo com os filtros sem paginação
+    public List<ClubeResponseDto> listarClubes(String nome, String siglaEstado, Boolean ativo) {
+        // Verifica se foi informado algum filtro e chama o repository correspondente
+        List<Clube> clubes;
+
+        if (nome != null && siglaEstado != null && ativo != null) {
+            clubes = clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstadoAndAtivo(nome, siglaEstado, ativo);
+        } else if (nome != null && siglaEstado != null) {
+            clubes = clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstado(nome, siglaEstado);
+        } else if (nome != null && ativo != null) {
+            clubes = clubeRepository.findByNomeContainingIgnoreCaseAndAtivo(nome, ativo);
+        } else if (siglaEstado != null && ativo != null) {
+            clubes = clubeRepository.findBySiglaEstadoAndAtivo(siglaEstado, ativo);
+        } else if (nome != null) {
+            clubes = clubeRepository.findByNomeContainingIgnoreCase(nome);
+        } else if (siglaEstado != null) {
+            clubes = clubeRepository.findBySiglaEstado(siglaEstado);
+        } else if (ativo != null) {
+            clubes = clubeRepository.findByAtivo(ativo);
+        } else {
+            // Se não foi informado nenhum filtro, retorna todos os clubes
+            clubes = clubeRepository.findAll();
         }
-        return clubesDto;
+
+        // Converte a lista de clubes para lista de DTOs de resposta e retorna
+        List<ClubeResponseDto> listarClubesDto = new ArrayList<>();
+        // Itera sobre a lista de clubes e chama o metodo auxiliar toResponseDto para cada clube
+        for (Clube clube : clubes) {
+            // Adiciona o clube convertido para DTO na lista de DTOs de resposta
+            listarClubesDto.add(toResponseDto(clube));
+        }
+        return listarClubesDto;
+    }
+
+    // Metodo para listar clubes de acordo com os filtros e com paginação
+    public Page<ClubeResponseDto> listarClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
+        // Verifica se foi informado algum filtro de paginação e chama o repository correspondente
+        Page<Clube> clubesPage = clubeRepository.buscarClubesPorPaginacao(nome, siglaEstado, ativo, pageable);
+        // Itera sobre a lista de clubes e chama o metodo auxiliar toResponseDto para converter cada clube da lista para DTO de resposta, e retorna
+        return clubesPage.map(this::toResponseDto);
     }
 
     // Metodo auxiliar, converte Clube para ClubeResponseDto
