@@ -49,7 +49,7 @@ public class ClubeService {
         }
         // Cria um novo clube com os dados do DTO
         Clube clube = new Clube(
-                clubeDto.getNome(),
+                clubeDto.getNome().trim(),
                 clubeDto.getSiglaEstado().trim().toUpperCase(),
                 clubeDto.getDataCriacao(),
                 clubeDto.getAtivo()

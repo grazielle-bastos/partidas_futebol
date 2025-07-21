@@ -2,8 +2,10 @@ package br.com.neocamp.partidas_futebol.dto;
 
 import java.time.LocalDate;
 
-// DTO de requisição de clube
+// DTO de requisição de clube contém apenas os atributos que serão recebidos na requisição da API (Ex: POST, PUT, DELETE - Entrada de dados)
 public class ClubeRequestDto {
+
+    // Atributos, construtores, getters e setters do DTO de resposta do clube, necessários para o Spring fazer a conversão do JSON da requisição para o objeto DTO
 
     // Atributos do DTO de requisição de clube
     private Long id;
@@ -13,7 +15,6 @@ public class ClubeRequestDto {
     private Boolean ativo;
 
     // Construtor vazio do DTO de requisição de clube
-    // Necessário para o Spring fazer a conversão do JSON da requisição para o objeto DTO
     public ClubeRequestDto() {}
 
     // Construtor com todos os atributos do DTO de requisição de clube
@@ -26,7 +27,6 @@ public class ClubeRequestDto {
     }
 
     // Getters e setters dos atributos do DTO de requisição de clube
-    // Necessários para o Spring fazer a conversão do JSON da requisição para o objeto DTO
     public Long getId() {
         return id;
     }

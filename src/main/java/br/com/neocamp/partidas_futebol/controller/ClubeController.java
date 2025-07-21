@@ -31,6 +31,7 @@ public class ClubeController {
 
     // Endpoint para cadastrar um clube
     @PostMapping
+    // Define o tipo de retorno como ResponseEntity<ClubeResponseDto> para retornar o clube (DTO) com status da resposta
     public ResponseEntity<ClubeResponseDto> cadastrarClubes(@RequestBody ClubeRequestDto clubeRequestDto) {
         // Recebe o DTO do clube pelo corpo da requisição
         ClubeResponseDto clubeSalvo = clubeService.salvar(clubeRequestDto);
@@ -51,6 +52,7 @@ public class ClubeController {
 
     //Endpoint para atualizar um clube
     @PutMapping("/{id}")
+    // Define o tipo de retorno como ResponseEntity<ClubeResponseDto> para retornar o clube (DTO) com status da resposta
     public ResponseEntity<ClubeResponseDto> atualizarClube(@PathVariable Long id, @RequestBody ClubeRequestDto clubeAtualizado) {
         // Recebe o ID do clube pela URL, e o clube atualizado pelo corpo da requisição
         // Chama o service para buscar o clube pelo ID e atualizar os dados

@@ -2,8 +2,10 @@ package br.com.neocamp.partidas_futebol.dto;
 
 import java.time.LocalDate;
 
-// DTO de resposta de clube contém apenas os atributos que serão retornados na resposta da API
+// DTO de resposta de clube contém apenas os atributos que serão retornados na resposta da API (Ex: GET - Saída de dados)
 public class ClubeResponseDto {
+
+    // Atributos, construtores, getters e setters do DTO de resposta do clube, necessários para o Spring fazer a conversão do objeto para JSON na resposta da API
 
     // Atributos do DTO de resposta de clube
     private Long id;
@@ -13,7 +15,6 @@ public class ClubeResponseDto {
     private Boolean ativo;
 
     // Construtor vazio do DTO de resposta de clube
-    // Necessário para o Spring fazer a conversão do objeto para JSON na resposta da API
     public ClubeResponseDto() {}
 
     // Construtor com todos os atributos do DTO de resposta de clube
@@ -26,7 +27,6 @@ public class ClubeResponseDto {
     }
 
     // Getters e setters dos atributos do DTO de resposta de clube
-    // Necessários para o Spring fazer a conversão do objeto para JSON na resposta da API
     public Long getId() {
         return id;
     }
