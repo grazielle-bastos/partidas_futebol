@@ -61,6 +61,30 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <tags>
+                        <tag>
+                            <name>requisito</name>
+                            <placement>a</placement>
+                            <head>Requisito:</head>
+                        </tag>
+                        <tag>
+                            <name>implementacao</name>
+                            <placement>a</placement>
+                            <head>Implementação:</head>
+                        </tag>
+                        <tag>
+                            <name>fluxo</name>
+                            <placement>a</placement>
+                            <head>Fluxo:</head>
+                        </tag>
+                    </tags>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

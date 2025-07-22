@@ -13,68 +13,114 @@ import br.com.neocamp.partidas_futebol.service.ClubeService;
 
 import java.util.List;
 
+/**
+ * Controller responsável pelos endpoints de operações com clubes de futebol.
+ *
+ * @requisito Gerencia cadastro, edição, inativação, busca e listagem de clubes.
+ * @fluxo Recebe requisições HTTP, valida dados e delega regras de negócio ao service.
+ * @implementacao Utiliza o ClubeService para executar as operações principais.
+ *
+ * Endpoints disponíveis:
+ * - POST /clube: Cadastrar clube
+ * - GET /clube/{id}: Buscar clube por ID
+ * - PUT /clube/{id}: Atualizar clube
+ * - DELETE /clube/{id}: Inativar clube (soft delete)
+ * - GET /clube/lista: Listar clubes com filtros e paginação
+ */
 @RestController
-// Define o prefixo da URL para acessar os endpoints deste controller
 @RequestMapping("/clube")
 public class ClubeController {
 
-    // Injeção de dependência do service de clube no controller
+    /**
+     * Serviço responsável por executar as regras de negócio relacionadas a clubes.
+     * Injetado automaticamente pelo Spring para ser utilizado nos endpoints do controller.
+     */
     private final ClubeService clubeService;
 
-    // Construtor com injeção de dependência do service de clube no controller
-    // O construtor é anotado com @Autowired para indicar que a injeção de dependência deve ser feita automaticamente pelo Spring
+    /**
+     * Construtor do controller de clubes.
+     *
+     * @param clubeService Serviço de clubes injetado automaticamente pelo Spring.
+     * @implementacao Utiliza injeção de dependência para garantir que o controller tenha acesso às regras de negócio dos clubes.
+     */
     @Autowired
     public ClubeController(ClubeService clubeService) {
-        // Atribui o service de clube recebido no construtor ao atributo do controller
         this.clubeService = clubeService;
     }
 
-    // Endpoint para cadastrar um clube
+    /**
+     * Cadastra um novo clube no sistema.
+     *
+     * @requisito Requisito_Funcional-01: Cadastro de clube
+     * @fluxo Recebe os dados do clube via DTO, valida, salva no banco e retorna o clube salvo.
+     * @implementacao Utiliza ClubeService para lógica de negócio e ResponseEntity para resposta HTTP.
+     * @param clubeRequestDto Dados do clube recebidos no corpo da requisição.
+     * @return ClubeResponseDto com os dados do clube cadastrado e status 201 CREATED.
+     */
     @PostMapping
-    // Define o tipo de retorno como ResponseEntity<ClubeResponseDto> para retornar o clube (DTO) com status da resposta
     public ResponseEntity<ClubeResponseDto> cadastrarClubes(@RequestBody ClubeRequestDto clubeRequestDto) {
-        // Recebe o DTO do clube pelo corpo da requisição
         ClubeResponseDto clubeSalvo = clubeService.salvar(clubeRequestDto);
-        // Retorna o clube salvo (DTO) com status 201 CREATED
         return ResponseEntity.status(HttpStatus.CREATED).body(clubeSalvo);
     }
 
-    // Endpoint para buscar um clube pelo ID
+    /**
+     * Busca um clube pelo seu ID.
+     *
+     * @requisito Requisito_Funcional-04: Buscar um clube
+     * @fluxo Recebe o ID do clube pela URL, chama o service para buscar o clube e retorna o resultado.
+     * @implementacao Utiliza ClubeService para a lógica de busca e ResponseEntity para resposta HTTP.
+     * @param id Identificador único do clube a ser buscado.
+     * @return ClubeResponseDto com os dados do clube encontrado e status 200 OK.
+     */
     @GetMapping("/{id}")
-    // Define o tipo de retorno como ResponseEntity<ClubeResponseDto> para retornar o clube (DTO) com status da resposta
     public ResponseEntity<ClubeResponseDto> buscarClubePorId(@PathVariable Long id) {
-        // Recebe o ID do clube pela URL
-        // Chama o service para buscar o clube pelo ID
         ClubeResponseDto clube = clubeService.buscarPorId(id);
-        // Retorna o clube encontrado (DTO) com status 200 OK
         return ResponseEntity.status(HttpStatus.OK).body(clube);
     }
 
-    //Endpoint para atualizar um clube
+    /**
+     * Atualiza os dados de um clube existente.
+     *
+     * @requisito Requisito_Funcional-02: Editar um clube
+     * @fluxo Recebe o ID do clube pela URL e os dados atualizados via DTO, valida, atualiza no banco e retorna o clube atualizado.
+     * @implementacao Utiliza ClubeService para lógica de atualização e ResponseEntity para resposta HTTP.
+     * @param id Identificador único do clube a ser atualizado.
+     * @param clubeAtualizado Dados atualizados do clube recebidos no corpo da requisição.
+     * @return ClubeResponseDto com os dados do clube atualizado e status 200 OK.
+     */
     @PutMapping("/{id}")
-    // Define o tipo de retorno como ResponseEntity<ClubeResponseDto> para retornar o clube (DTO) com status da resposta
     public ResponseEntity<ClubeResponseDto> atualizarClube(@PathVariable Long id, @RequestBody ClubeRequestDto clubeAtualizado) {
-        // Recebe o ID do clube pela URL, e o clube atualizado pelo corpo da requisição
-        // Chama o service para buscar o clube pelo ID e atualizar os dados
         ClubeResponseDto clube = clubeService.atualizarPorId(id, clubeAtualizado);
-        // Retorna o clube atualizado (DTO) com status 200 OK
         return ResponseEntity.status(HttpStatus.OK).body(clube);
     }
 
-    //Endpoint para inativar um clube
-    @DeleteMapping("/{id}")
-    // Define o tipo de retorno como ResponseEntity<Void> para retornar apenas o status da resposta (sem corpo)
+    /**
+     * Inativa (soft delete) um clube existente no sistema.
+     *
+     * @requisito Requisito_Funcional-03: Inativar um clube
+     * @fluxo Recebe o ID do clube pela URL, chama o service para inativar (não excluir) o clube e retorna status 204 NO CONTENT.
+     * @implementacao Utiliza ClubeService para lógica de inativação e ResponseEntity para resposta HTTP sem corpo.
+     * @param id Identificador único do clube a ser inativado.
+     * @return ResponseEntity sem corpo e status 204 NO CONTENT.
+     */    @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativarClube(@PathVariable Long id) {
-        // Recebe o ID do clube pela URL
-        // Chama o service para inativar o clube pelo ID
         clubeService.inativarClubePorId(id);
-        // Retorna status 204 NO CONTENT (não retorna o clube, pois ele foi inativado e não deve ser mais exibido)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    //Endpoint para listar clubes
+    /**
+     * Lista clubes com filtros opcionais e suporte à paginação.
+     *
+     * @requisito Requisito_Funcional-05: Listar clubes
+     * @fluxo Recebe filtros opcionais (nome, sigla do estado, ativo) e parâmetros de paginação, chama o service para buscar os clubes e retorna a lista ou página de resultados.
+     * @implementacao Utiliza ClubeService para lógica de busca, suporta tanto listagem completa quanto paginada, e ResponseEntity para resposta HTTP.
+     * @param nome (opcional) Filtro pelo nome do clube.
+     * @param siglaEstado (opcional) Filtro pela sigla do estado do clube.
+     * @param ativo (opcional) Filtro pela situação do clube (ativo/inativo).
+     * @param pageable Parâmetros de paginação e ordenação.
+     * @return Lista ou página de ClubeResponseDto com status 200 OK.
+     */
     @GetMapping("/lista")
-    // Recebe os parâmetros de filtro (nome, sigla do estado, ativo) como parâmetros da URL
     public ResponseEntity<?> listarClubes(
             @RequestParam(required = false)
             String nome,
@@ -82,17 +128,11 @@ public class ClubeController {
             @RequestParam(required = false) Boolean ativo,
             Pageable pageable
     ) {
-        // Verifica se foi informado algum filtro de paginação
-        // Se a página for 0 e o tamanho for o máximo, chama o service para listar todos os clubes sem paginação
         if (pageable.getPageSize() == Integer.MAX_VALUE) {
-            // Chama o service para listar os clubes de acordo com os filtros
             List<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo);
-            // Retorna a lista de clubes encontrados (DTO) com status 200 OK
             return ResponseEntity.status(HttpStatus.OK).body(clubes);
         } else {
-            // Chama o service para listar os clubes de acordo com os filtros e com paginação
             Page<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo, pageable);
-            // Retorna a lista de clubes encontrados (DTO) com status 200 OK
             return ResponseEntity.status(HttpStatus.OK).body(clubes);
         }
     }
