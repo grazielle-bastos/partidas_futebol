@@ -2,6 +2,7 @@ package br.com.neocamp.partidas_futebol.controller;
 
 import br.com.neocamp.partidas_futebol.dto.ClubeRequestDto;
 import br.com.neocamp.partidas_futebol.dto.ClubeResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +58,9 @@ public class ClubeController {
      * @param clubeRequestDto Dados do clube recebidos no corpo da requisição.
      * @return ClubeResponseDto com os dados do clube cadastrado e status 201 CREATED.
      */
+    @Operation(
+            summary = "Cadastrar clube",
+            description = "Endpoint para cadastrar um novo clube no sistema.")
     @PostMapping
     public ResponseEntity<ClubeResponseDto> cadastrarClubes(@RequestBody ClubeRequestDto clubeRequestDto) {
         ClubeResponseDto clubeSalvo = clubeService.salvar(clubeRequestDto);

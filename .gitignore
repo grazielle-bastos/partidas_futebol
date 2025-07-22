@@ -72,3 +72,15 @@ Thumbs.db
 notes/
 
 .github/
+
+br/
+legal/
+resource-files/
+resources/
+script-dir/
+script-files/
+script.js
+search-page.js
+search.js
+stylesheet.css
+*.svg

@@ -17,37 +17,77 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Serviço responsável por implementar as regras de negócio relacionadas à entidade Clube.
+ *
+ * @requisito Centralizar validações, regras e fluxos de operações de clubes (cadastro, busca, edição, inativação, listagem).
+ * @fluxo Recebe dados do controller, valida, aplica regras e interage com o repositório. Retorna DTOs para o controller.
+ * @implementacao Utiliza ClubeRepository para persistência, separa lógica de negócio da camada de apresentação.
+ *
+ * <b>Didática:</b>
+ * <ul>
+ *   <li>Facilita manutenção e testes isolados das regras de negócio.</li>
+ *   <li>Evita lógica complexa no controller, promovendo arquitetura limpa.</li>
+ * </ul>
+ *
+ * @service Camada de serviço da entidade Clube.
+ * @see br.com.neocamp.partidas_futebol.repository.ClubeRepository
+ * @see br.com.neocamp.partidas_futebol.dto.ClubeRequestDto
+ * @see br.com.neocamp.partidas_futebol.dto.ClubeResponseDto
+ */
 @Service
 public class ClubeService {
 
-    // Injeção de dependência do repository
+    /**
+     * Construtor padrão do repositório de clubes.
+     *
+     * @requisito Permitir injeção automática do Spring Data JPA.
+     * @fluxo O Spring instancia e injeta o repositório nas classes de serviço.
+     * @implementacao Não requer implementação manual, pois é gerenciado pelo framework.
+     */
     private final ClubeRepository clubeRepository;
 
+    /**
+     * Construtor padrão do repositório de clubes.
+     *
+     * @requisito Permitir injeção automática do Spring Data JPA.
+     * @fluxo O Spring instancia e injeta o repositório nas classes de serviço.
+     * @implementacao Não requer implementação manual, pois é gerenciado pelo framework.
+     */
     @Autowired
     public ClubeService(ClubeRepository clubeRepository) {
         this.clubeRepository = clubeRepository;
     }
 
+    /**
+     * Cadastra um novo clube no sistema.
+     *
+     * @requisito Requisito_Funcional-01: Cadastro de clube
+     * @fluxo Recebe DTO, valida dados, verifica duplicidade, salva no banco e retorna DTO do clube salvo.
+     * @implementacao Valida nome, estado, data e duplicidade. Lança exceções 400 ou 409 conforme regras.
+     * @param clubeDto Dados do clube recebidos para cadastro.
+     * @return ClubeResponseDto com os dados do clube cadastrado.
+     * @throws ResponseStatusException 400 para dados inválidos, 409 para duplicidade.
+     */
     public ClubeResponseDto salvar(ClubeRequestDto clubeDto) {
-        // Validações de negócio
         if (clubeDto.getNome() == null || clubeDto.getNome().trim().isEmpty() || clubeDto.getSiglaEstado() == null || clubeDto.getSiglaEstado().trim().isEmpty() || clubeDto.getDataCriacao() == null  || clubeDto.getAtivo() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos são obrigatórios e não podem ser vazios");
         }
         if (clubeDto.getNome().trim().length() < 2) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome inválido: deve ter no mínimo 2 caracteres");
         }
-        // Chamada do metodo auxiliar que valida a sigla do estado usando o enum EstadosBrasil
+
         validarSiglaEstado(clubeDto.getSiglaEstado());
-        // Verifica se a data de criação é no futuro
+
         if (clubeDto.getDataCriacao().isAfter(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro");
         }
-        //Verifica duplicidade de clube por nome no mesmo estado
+
         Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(clubeDto.getNome().trim(), clubeDto.getSiglaEstado().trim().toUpperCase());
         if(clubeExistente.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado");
         }
-        // Cria um novo clube com os dados do DTO
+
         Clube clube = new Clube(
                 clubeDto.getNome().trim(),
                 clubeDto.getSiglaEstado().trim().toUpperCase(),
@@ -57,69 +97,109 @@ public class ClubeService {
         return toResponseDto(clubeRepository.save(clube));
     }
 
+    /**
+     * Busca um clube pelo seu ID.
+     *
+     * @requisito Requisito_Funcional-04: Buscar um clube
+     * @fluxo Recebe o ID, consulta o repositório e retorna o DTO do clube. Lança exceção se não encontrar.
+     * @implementacao Utiliza Optional do repository. Lança ResponseStatusException 404 se não existir.
+     * @param id Identificador único do clube.
+     * @return ClubeResponseDto com os dados do clube encontrado.
+     * @throws ResponseStatusException 404 se o clube não existir.
+     */
     public ClubeResponseDto buscarPorId(Long id) {
-        // Busca o clube pelo ID usando o repository
+
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
-        // Se encontrar, retorna o clube
+
         if (clubeOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
         }
         return toResponseDto(clubeOptional.get());
     }
 
+    /**
+     * Atualiza os dados de um clube existente pelo seu ID.
+     *
+     * @requisito Requisito_Funcional-02: Editar um clube
+     * @fluxo Recebe o ID e os dados atualizados, valida, verifica conflitos e salva no banco. Retorna o clube atualizado.
+     * @implementacao Valida nome, estado, data e duplicidade antes de atualizar. Lança exceções para dados inválidos, conflitos ou clube inexistente.
+     * @param id Identificador único do clube a ser atualizado.
+     * @param clubeAtualizado DTO com os dados atualizados do clube.
+     * @return ClubeResponseDto com os dados do clube atualizado.
+     * @throws ResponseStatusException 400 para dados inválidos, 409 para conflitos, 404 se o clube não existir.
+     */
     public ClubeResponseDto atualizarPorId(Long id, ClubeRequestDto clubeAtualizado) {
-        // Busca o clube pelo ID usando o repository
+
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
-        // Verifica se o clube foi encontrado
+
         if (clubeOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
         }
-        // Converte o DTO para entidade e atualiza os campos do clube encontrado
+
         Clube clube = clubeOptional.get();
-        // Validações de negócio para os campos que podem ser atualizados
+
         if (clubeAtualizado.getNome() == null || clubeAtualizado.getNome().trim().length() < 2) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome inválido: deve ter no mínimo 2 caracteres");
         }
-        // Chamada do metodo auxiliar que valida a sigla do estado usando o enum EstadosBrasil
+
         validarSiglaEstado(clubeAtualizado.getSiglaEstado());
-        // Verifica se a data de criação é no futuro
+
         if (clubeAtualizado.getDataCriacao() == null || clubeAtualizado.getDataCriacao().isAfter(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Data de criação inválida: não pode ser no futuro");
         }
 
         // TODO: Validar se a nova data de criação é posterior à data de alguma partida já registrada para este clube (requisito de cenários de exceção do projeto - 409 Conflict)
 
-        // Validação de duplicidade: impede atualizar para um nome/estado que já existe em outro clube (ID diferente), mas permite atualizar o próprio clube mesmo que o nome/estado não mudem.
+
         Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(clubeAtualizado.getNome().trim(), clubeAtualizado.getSiglaEstado().trim().toUpperCase());
         if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado");
         }
-        // Atualiza os campos do clube
+
         clube.setNome(clubeAtualizado.getNome());
         clube.setSiglaEstado(clubeAtualizado.getSiglaEstado());
         clube.setDataCriacao(clubeAtualizado.getDataCriacao());
         clube.setAtivo(clubeAtualizado.getAtivo());
-        // Salva o clube atualizado
+
         Clube clubeSalvo = clubeRepository.save(clube);
-        // Retorna o clube atualizado convertido para DTO
+
         return toResponseDto(clubeSalvo);
     }
 
+    /**
+     * Inativa (soft delete) um clube pelo seu ID.
+     *
+     * @requisito Requisito_Funcional-03: Inativar um clube
+     * @fluxo Recebe o ID, verifica se o clube existe, marca como inativo e salva no banco.
+     * @implementacao Não exclui do banco, apenas altera o campo ativo para false. Lança exceção se o clube não existir.
+     * @param id Identificador único do clube a ser inativado.
+     * @throws ResponseStatusException 404 se o clube não existir.
+     */
     public void inativarClubePorId(Long id) {
-        // Busca o clube pelo ID usando o repository
+
         Optional<Clube> clubeOptional = clubeRepository.findById(id);
         if (clubeOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado");
         }
-        // Se encontrar, inativa o clube
+
         Clube clube = clubeOptional.get();
         clube.setAtivo(false);
         clubeRepository.save(clube);
     }
 
-    // Metodo para listar clubes de acordo com os filtros sem paginação
+    /**
+     * Lista clubes com filtros opcionais (nome, estado, ativo).
+     *
+     * @requisito Requisito_Funcional-05: Listar clubes
+     * @fluxo Recebe filtros opcionais, busca no banco e retorna lista de clubes.
+     * @implementacao Utiliza métodos do repository para diferentes combinações de filtros. Retorna DTOs.
+     * @param nome (opcional) Filtro pelo nome do clube.
+     * @param siglaEstado (opcional) Filtro pela sigla do estado.
+     * @param ativo (opcional) Filtro pela situação do clube.
+     * @return Lista de ClubeResponseDto com os clubes encontrados.
+     */
     public List<ClubeResponseDto> listarClubes(String nome, String siglaEstado, Boolean ativo) {
-        // Verifica se foi informado algum filtro e chama o repository correspondente
+
         List<Clube> clubes;
 
         if (nome != null && siglaEstado != null && ativo != null) {
@@ -137,29 +217,46 @@ public class ClubeService {
         } else if (ativo != null) {
             clubes = clubeRepository.findByAtivo(ativo);
         } else {
-            // Se não foi informado nenhum filtro, retorna todos os clubes
             clubes = clubeRepository.findAll();
         }
 
-        // Converte a lista de clubes para lista de DTOs de resposta e retorna
         List<ClubeResponseDto> listarClubesDto = new ArrayList<>();
-        // Itera sobre a lista de clubes e chama o metodo auxiliar toResponseDto para cada clube
+
         for (Clube clube : clubes) {
-            // Adiciona o clube convertido para DTO na lista de DTOs de resposta
+
             listarClubesDto.add(toResponseDto(clube));
         }
         return listarClubesDto;
     }
 
-    // Metodo para listar clubes de acordo com os filtros e com paginação
+    /**
+     * Lista clubes com filtros opcionais e suporte à paginação.
+     *
+     * @requisito Requisito_Funcional-05: Listar clubes (paginado)
+     * @fluxo Recebe filtros e parâmetros de paginação, busca no banco e retorna página de clubes.
+     * @implementacao Utiliza consulta customizada do repository para paginação e filtros. Retorna DTOs.
+     * @param nome (opcional) Filtro pelo nome do clube.
+     * @param siglaEstado (opcional) Filtro pela sigla do estado.
+     * @param ativo (opcional) Filtro pela situação do clube.
+     * @param pageable Parâmetros de paginação e ordenação.
+     * @return Página de ClubeResponseDto com os clubes encontrados.
+     */
     public Page<ClubeResponseDto> listarClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
-        // Verifica se foi informado algum filtro de paginação e chama o repository correspondente
+
         Page<Clube> clubesPage = clubeRepository.buscarClubesPorPaginacao(nome, siglaEstado, ativo, pageable);
-        // Itera sobre a lista de clubes e chama o metodo auxiliar toResponseDto para converter cada clube da lista para DTO de resposta, e retorna
+
         return clubesPage.map(this::toResponseDto);
     }
 
-    // Metodo auxiliar, converte Clube para ClubeResponseDto
+    /**
+     * Converte uma entidade Clube para o DTO de resposta.
+     *
+     * @requisito Encapsular os dados do clube para resposta da API.
+     * @fluxo Recebe a entidade, mapeia os campos e retorna o DTO.
+     * @implementacao Cria e retorna um ClubeResponseDto com os dados da entidade Clube.
+     * @param clube Entidade Clube a ser convertida.
+     * @return ClubeResponseDto com os dados do clube.
+     */
     private ClubeResponseDto toResponseDto(Clube clube) {
         return new ClubeResponseDto(
                 clube.getId(),
@@ -170,7 +267,15 @@ public class ClubeService {
         );
     }
 
-    // Metodo auxiliar para validar a sigla do estado
+    /**
+     * Valida se a sigla do estado informada existe no enum EstadosBrasil.
+     *
+     * @requisito Garantir que apenas siglas válidas sejam aceitas nas operações de clube.
+     * @fluxo Recebe a sigla, verifica no enum e lança exceção se for inválida.
+     * @implementacao Utiliza o enum EstadosBrasil para validação. Lança exceção 400 para sigla inválida.
+     * @param siglaEstado Sigla do estado brasileiro a ser validada.
+     * @throws ResponseStatusException 400 se a sigla for inválida.
+     */
     private void validarSiglaEstado(String siglaEstado) {
         try {
             EstadosBrasil.valueOf(siglaEstado.trim().toUpperCase());
