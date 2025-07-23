@@ -38,7 +38,7 @@ import java.time.LocalDate;
  *   <li>Os atributos são persistidos automaticamente no banco de dados.</li>
  * </ul>
  *
- * @entity Tabela "clube" no banco de dados.
+ * Tabela "clube" no banco de dados.
  * @see jakarta.persistence.Entity
  * @see jakarta.persistence.Table
  */

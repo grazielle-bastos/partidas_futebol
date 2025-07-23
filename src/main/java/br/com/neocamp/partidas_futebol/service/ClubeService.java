@@ -30,7 +30,7 @@ import java.util.Optional;
  *   <li>Evita lógica complexa no controller, promovendo arquitetura limpa.</li>
  * </ul>
  *
- * @service Camada de serviço da entidade Clube.
+ * Camada de serviço da entidade Clube.
  * @see br.com.neocamp.partidas_futebol.repository.ClubeRepository
  * @see br.com.neocamp.partidas_futebol.dto.ClubeRequestDto
  * @see br.com.neocamp.partidas_futebol.dto.ClubeResponseDto
