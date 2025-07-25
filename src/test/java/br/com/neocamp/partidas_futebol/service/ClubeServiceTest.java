@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -88,7 +89,7 @@ public class ClubeServiceTest {
     @InjectMocks
     private ClubeService clubeService;
 
-    /**
+/**
      * Objeto DTO utilizado para simular os dados de entrada de um clube no teste.
      *
      * <p>
@@ -100,7 +101,8 @@ public class ClubeServiceTest {
      */
     ClubeRequestDto clubeDto = new ClubeRequestDto();
 
-    /**
+
+/**
      * Testa o método salvar do ClubeService para o caso em que os dados do clube são inválidos.
      *
      * <p>
@@ -160,7 +162,8 @@ public class ClubeServiceTest {
         assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
     }
 
-    /**
+
+/**
      * Testa o método salvar do ClubeService para o caso em que os dados do clube são válidos.
      *
      * <p>
@@ -200,7 +203,8 @@ public class ClubeServiceTest {
         assertTrue(response.getAtivo());
     }
 
-    /**
+
+/**
      * Testa o método salvar do ClubeService para o caso em que já existe um clube com o mesmo nome e sigla de estado.
      *
      * <p>
@@ -234,7 +238,8 @@ public class ClubeServiceTest {
         assertEquals (HttpStatus.CONFLICT, ex.getStatusCode());
     }
 
-    /**
+
+/**
      * Testa o método salvar do ClubeService para cadastro de clube sem duplicidade de nome e sigla de estado.
      *
      * <p>
@@ -272,7 +277,8 @@ public class ClubeServiceTest {
         assertTrue(response.getAtivo());
     }
 
-    /**
+
+/**
      * Testa o método buscarPorId do ClubeService para o caso em que o clube NÃO existe.
      *
      * <p>
@@ -297,7 +303,8 @@ public class ClubeServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 
-    /**
+
+/**
      * Testa o método buscarPorId do ClubeService para o caso em que o clube existe.
      *
      * <p>
@@ -328,7 +335,8 @@ public class ClubeServiceTest {
         assertEquals("Palmeiras", response.getNome());
     }
 
-    /**
+
+/**
      * Testa o método atualizarPorId do ClubeService para o caso em que os dados do clube são inválidos.
      *
      * <p>
@@ -356,10 +364,13 @@ public class ClubeServiceTest {
 
         ClubeRequestDto clubeDto = new ClubeRequestDto();
 
-        clubeDto.setNome("A");
+        clubeDto.setNome(null);
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
         clubeDto.setAtivo(true);
+        assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
+
+        clubeDto.setNome("A");
         assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
 
         clubeDto.setNome("Corinthians");
@@ -367,12 +378,16 @@ public class ClubeServiceTest {
         assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
 
         clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(null);
+        assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
+
         clubeDto.setDataCriacao(LocalDate.now().plusDays(1));
         assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
 
     }
 
-    /**
+
+/**
      * Testa o método atualizarPorId do ClubeService para o caso em que os dados do clube são válidos.
      *
      * <p>
@@ -419,6 +434,468 @@ public class ClubeServiceTest {
         assertTrue(response.getAtivo());
     }
 
+
     // TODO: Testar cenários de data de criação posterior à data de alguma partida do clube (requisito 409 CONFLICT)
+
+
+/**
+     * Testa o método atualizarPorId do ClubeService para o caso em que já existe um clube com o mesmo nome e sigla de estado.
+     *
+     * <p>
+     * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
+     * Já existe um clube com o mesmo nome e sigla no banco.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (atualizarPorId).</li>
+     *   <li><b>Assert:</b> Verifica se uma exceção é lançada com status 409 (CONFLICT).</li>
+     * </ul>
+     *
+     * @cenario Atualização de clube com duplicidade de nome e sigla.
+     * @resultado Deve lançar ResponseStatusException com status CONFLICT.
+     */
+    @Test
+    public void testarAtualizarClubeComDuplicidadeDeNomeESiglaEstadoComInsucesso() {
+        Long id = 1L;
+        Clube clubeExistente = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clubeExistente.setId(id);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.of(clubeExistente));
+
+        ClubeRequestDto clubeDto = new ClubeRequestDto();
+        clubeDto.setNome("Corinthians");
+        clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(LocalDate.of(1910, 9, 1));
+        clubeDto.setAtivo(true);
+
+        Clube clubeDuplicado = new Clube("Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
+        clubeDuplicado.setId(2L);
+        when(clubeRepository.findByNomeAndSiglaEstado("Corinthians", "SP")).thenReturn(Optional.of(clubeDuplicado));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+
+    }
+
+
+/**
+     * Testa o método atualizarPorId do ClubeService para atualização de clube sem duplicidade de nome e sigla de estado.
+     *
+     * <p>
+     * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
+     * Já existe um clube com o mesmo nome e sigla no banco.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (atualizarPorId).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado.</li>
+     * </ul>
+     *
+     * @cenario Atualização de clube novo, sem duplicidade.
+     * @resultado Clube atualizado corretamente, com os dados preenchidos e ativo.
+     */
+    @Test
+    public void testarAtualizarClubeSemDuplicidadeDeNomeESiglaEstadoComSucesso() {
+        Long id = 1L;
+        Clube clubeExistente = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clubeExistente.setId(id);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.of(clubeExistente));
+
+        ClubeRequestDto clubeDto = new ClubeRequestDto();
+        clubeDto.setNome("Palmeiras");
+        clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
+        clubeDto.setAtivo(true);
+
+        when(clubeRepository.findByNomeAndSiglaEstado("Palmeiras", "SP")).thenReturn(Optional.of(clubeExistente));
+
+        when(clubeRepository.save(any(Clube.class))).thenReturn(clubeExistente);
+
+        ClubeResponseDto response = clubeService.atualizarPorId(id, clubeDto);
+
+        assertNotNull(response);
+        assertEquals("Palmeiras", response.getNome());
+        assertEquals("SP", response.getSiglaEstado());
+        assertEquals(LocalDate.of(1914, 8, 26), response.getDataCriacao());
+        assertTrue(response.getAtivo());
+
+    }
+
+    /**
+     * Testa o método atualizarPorId do ClubeService para atualização de clube sem duplicidade de nome e sigla de estado.
+     *
+     * <p>
+     * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
+     * Não existe clube com o mesmo nome e sigla no banco.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (atualizarPorId).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado.</li>
+     * </ul>
+     *
+     * @cenario Atualização de clube novo, sem duplicidade.
+     * @resultado Clube atualizado corretamente, com os dados preenchidos e ativo.
+     */
+    @Test
+    public void testarAtualizarClubeSemDuplicidadeDeNomeESiglaEstado() {
+        Long id = 1L;
+        Clube clubeExistente = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clubeExistente.setId(id);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.of(clubeExistente));
+
+        ClubeRequestDto clubeDto = new ClubeRequestDto();
+        clubeDto.setNome("Corinthians");
+        clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(LocalDate.of(1910, 9, 1));
+        clubeDto.setAtivo(true);
+
+        when(clubeRepository.findByNomeAndSiglaEstado("Corinthians", "SP")).thenReturn(Optional.empty());
+
+        Clube clubeAtualizado = new Clube("Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
+
+        clubeAtualizado.setId(id);
+        when(clubeRepository.save(any(Clube.class))).thenReturn(clubeAtualizado);
+
+        ClubeResponseDto response = clubeService.atualizarPorId(id, clubeDto);
+
+        assertNotNull(response);
+        assertEquals("Corinthians", response.getNome());
+        assertEquals("SP", response.getSiglaEstado());
+        assertEquals(LocalDate.of(1910, 9, 1), response.getDataCriacao());
+        assertTrue(response.getAtivo());
+
+    }
+
+
+/**
+     * Testa o método atualizarPorId do ClubeService para o caso em que o clube NÃO existe.
+     *
+     * <p>
+     * Cenário: Dado um ID inexistente, o método deve lançar uma exceção 404 (NOT FOUND).
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Configura o mock do repositório para retornar vazio (Optional.empty()).</li>
+     *   <li><b>Act & Assert:</b> Chama o método atualizarPorId e verifica se lança ResponseStatusException com status 404.</li>
+     * </ul>
+     *
+     * @cenario Atualização de clube inexistente.
+     * @resultado Deve lançar ResponseStatusException com status NOT_FOUND.
+     */
+    @Test
+    public void testarAtualizarClubeComIdInexistente() {
+        Long id = 99L;
+        ClubeRequestDto clubeDto = new ClubeRequestDto();
+        clubeDto.setNome("Corinthians");
+        clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(LocalDate.of(1910, 9, 1));
+        clubeDto.setAtivo(true);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarPorId(id, clubeDto));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+    /**
+     * Testa o método atualizarPorId do ClubeService para o caso em que o clube existe e é atualizado com ID existente.
+     *
+     * <p>
+     * Cenário: Dado um ID existente, o método deve atualizar o clube com os dados fornecidos no DTO.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Configura o mock do repositório para retornar um clube existente.</li>
+     *   <li><b>Act:</b> Chama o método atualizarPorId.</li>
+     *   <li><b>Assert:</b> Verifica se o DTO retornado tem os dados esperados.</li>
+     * </ul>
+     *
+     * @cenario Atualização de clube existente com ID válido.
+     * @resultado Deve retornar o DTO do clube atualizado.
+     */
+    @Test
+    public void testarAtualizarClubeComIdExistente() {
+        Long id = 1L;
+        Clube clubeExistente = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clubeExistente.setId(id);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.of(clubeExistente));
+
+        ClubeRequestDto clubeDto = new ClubeRequestDto();
+        clubeDto.setNome("Corinthians");
+        clubeDto.setSiglaEstado("SP");
+        clubeDto.setDataCriacao(LocalDate.of(1910, 9, 1));
+        clubeDto.setAtivo(true);
+
+        when(clubeRepository.findByNomeAndSiglaEstado("Corinthians", "SP")).thenReturn(Optional.empty());
+
+        Clube clubeAtualizado = new Clube("Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
+        clubeAtualizado.setId(id);
+
+        when(clubeRepository.save(any(Clube.class))).thenReturn(clubeAtualizado);
+
+        ClubeResponseDto response = clubeService.atualizarPorId(id, clubeDto);
+
+        assertNotNull(response);
+        assertEquals("Corinthians", response.getNome());
+        assertEquals("SP", response.getSiglaEstado());
+        assertEquals(LocalDate.of(1910, 9, 1), response.getDataCriacao());
+        assertTrue(response.getAtivo());
+    }
+
+
+/**
+     * Testa o método inativarClubePorId do ClubeService para o caso em que o clube NÃO existe.
+     *
+     * <p>
+     * Cenário: Dado um ID inexistente, o método deve lançar uma exceção 404 (NOT FOUND).
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Configura o mock do repositório para retornar vazio (Optional.empty()).</li>
+     *   <li><b>Act & Assert:</b> Chama o método inativarClubePorId e verifica se lança ResponseStatusException com status 404.</li>
+     * </ul>
+     *
+     * @cenario Inativação de clube inexistente.
+     * @resultado Deve lançar ResponseStatusException com status NOT_FOUND.
+     */
+    @Test
+    public void testarInativarClubeComIdInexistente() {
+        Long id = 99L;
+        when(clubeRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.inativarClubePorId(id));
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+
+/**
+     * Testa o método inativarClubePorId do ClubeService para o caso em que o clube existe e é inativado.
+     *
+     * <p>
+     * Cenário: Dado um ID existente, o método deve inativar o clube correspondente.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Configura o mock do repositório para retornar um clube existente.</li>
+     *   <li><b>Act:</b> Chama o método inativarClubePorId.</li>
+     *   <li><b>Assert:</b> Verifica se o clube foi inativado corretamente.</li>
+     * </ul>
+     *
+     * @cenario Inativação de clube existente com ID válido.
+     * @resultado Deve inativar o clube e retornar o DTO atualizado.
+     */
+    @Test
+    public void testarInativarClubeComIdExistente() {
+        Long id = 1L;
+        Clube clubeExistente = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clubeExistente.setId(id);
+
+        when(clubeRepository.findById(id)).thenReturn(Optional.of(clubeExistente));
+        when(clubeRepository.save(any(Clube.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        clubeService.inativarClubePorId(id);
+
+        assertFalse(clubeExistente.getAtivo(), "O clube deve ser inativado");
+    }
+
+
+/**
+     * Testa o método listarClubes do ClubeService para o caso em que não existem clubes filtrados.
+     *
+     * <p>
+     * Cenário: Recebe filtros de nome, sigla do estado e situação ativo.
+     * Não existem clubes que correspondam aos filtros fornecidos.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (listarClubes).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado é uma lista vazia.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes filtrados sem resultados.
+     * @resultado Deve retornar uma lista vazia de DTOs.
+     */
+    @Test
+    public void testarListarClubesFiltradosSemResultados() {
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstadoAndAtivo(anyString(), anyString(), anyBoolean())).thenReturn(List.of());
+
+        List<ClubeResponseDto> resultado = clubeService.listarClubes("Inexistente", "ZZ", false);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstado(anyString(), anyString())).thenReturn(List.of());
+
+        resultado = clubeService.listarClubes("Inexistente", "ZZ", null);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndAtivo(anyString(), anyBoolean())).thenReturn(List.of());
+
+        resultado = clubeService.listarClubes("Inexistente", null, false);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findBySiglaEstadoAndAtivo(anyString(), anyBoolean())).thenReturn(List.of());
+        resultado = clubeService.listarClubes(null, "ZZ", false);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findByNomeContainingIgnoreCase(anyString())).thenReturn(List.of());
+        resultado = clubeService.listarClubes("Inexistente", null, null);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findBySiglaEstado(anyString())).thenReturn(List.of());
+        resultado = clubeService.listarClubes(null, "ZZ", null);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findByAtivo(anyBoolean())).thenReturn(List.of());
+        resultado = clubeService.listarClubes(null, null, true);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+        when(clubeRepository.findAll()).thenReturn(List.of());
+        resultado = clubeService.listarClubes(null, null, null);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+
+    }
+
+
+/**
+     * Testa o método listarClubes do ClubeService para o caso em que existem clubes filtrados.
+     *
+     * <p>
+     * Cenário: Recebe filtros de nome, sigla do estado e situação ativo.
+     * Existem clubes que correspondem aos filtros fornecidos.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (listarClubes).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado contém os clubes esperados.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes filtrados com resultados.
+     * @resultado Deve retornar uma lista de DTOs com os clubes filtrados.
+     */
+    @Test
+    public void testarListarClubesFiltradosComResultados() {
+        Clube clube1 = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clube1.setId(1L);
+        Clube clube2 = new Clube("Corinthians", "SP", LocalDate.of(1910, 9,1), true);
+        clube2.setId(2L);
+
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstadoAndAtivo("Palmeiras", "SP", true)).thenReturn(List.of(clube1));
+
+        List<ClubeResponseDto> resultado = clubeService.listarClubes("Palmeiras", "SP", true);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Palmeiras", resultado.get(0).getNome());
+        assertEquals("SP", resultado.get(0).getSiglaEstado());
+        assertTrue(resultado.get(0).getAtivo());
+
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndSiglaEstado("Palmeiras", "SP")).thenReturn(List.of(clube1));
+        resultado = clubeService.listarClubes("Palmeiras", "SP", null);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Palmeiras", resultado.get(0).getNome());
+        assertEquals("SP", resultado.get(0).getSiglaEstado());
+        assertTrue(resultado.get(0).getAtivo());
+
+        when(clubeRepository.findByNomeContainingIgnoreCaseAndAtivo("Palmeiras", true)).thenReturn(List.of(clube1));
+        resultado = clubeService.listarClubes("Palmeiras", null, true);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Palmeiras", resultado.get(0).getNome());
+        assertEquals("SP", resultado.get(0).getSiglaEstado());
+        assertTrue(resultado.get(0).getAtivo());
+
+        when(clubeRepository.findBySiglaEstadoAndAtivo("SP", true)).thenReturn(List.of(clube1, clube2));
+        resultado = clubeService.listarClubes(null, "SP", true);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+
+        boolean listarClubesEncontrado = false;
+        for (ClubeResponseDto c : resultado) {
+            if (c.getNome().equals("Palmeiras") && c.getSiglaEstado().equals("SP") && c.getAtivo()) {
+                listarClubesEncontrado = true;
+                break;
+            }
+        }
+        assertTrue(listarClubesEncontrado);
+
+    }
+
+    /**
+     * Testa o método listarClubes do ClubeService para o caso em que existem clubes filtrados com paginação e ordenação.
+     *
+     * <p>
+     * Cenário: Recebe filtros de nome, sigla do estado e situação ativo, além de parâmetros de paginação e ordenação.
+     * Existem clubes que correspondem aos filtros fornecidos.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (listarClubes).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado contém os clubes esperados com a ordenação correta.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes filtrados com paginação e ordenação com resultado.
+     * @resultado Deve retornar uma página de DTOs com os clubes filtrados e ordenados.
+     */
+    @Test
+    public void testarListarClubesFiltradosComPaginacaoEOrdenacaoComResultado() {
+        Clube clube1 = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
+        clube1.setId(1L);
+        Clube clube2 = new Clube("Corinthians", "SP", LocalDate.of(1910, 9,1), true);
+        clube2.setId(2L);
+
+        List<Clube> listarClubes = List.of(clube2, clube1);
+        Page<Clube> clubesPage = new PageImpl<>(listarClubes);
+
+        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "nome"));
+
+        when(clubeRepository.buscarClubesPorPaginacao(null, "SP", true, pageable)).thenReturn(clubesPage);
+
+        Page<ClubeResponseDto> resultado = clubeService.listarClubes(null, "SP", true, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.getContent().size());
+        assertEquals("Palmeiras", resultado.getContent().get(1).getNome());
+        assertEquals("Corinthians", resultado.getContent().get(0).getNome());
+    }
 
 }
