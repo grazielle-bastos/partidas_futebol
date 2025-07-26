@@ -1,5 +1,7 @@
 package br.com.neocamp.partidas_futebol.dto;
 
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 /**
  * DTO responsável por transportar os dados de entrada (define/modifica) para operações de criação, atualização e inativação (soft delete) de clubes.
@@ -28,17 +30,23 @@ public class ClubeRequestDto {
      * Nome do clube.
      * Deve conter pelo menos 2 letras.
      */
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(min = 2, message = "Nome deve ter no mínimo 2 letras")
     private String nome;
 
     /**
      * Sigla do estado brasileiro onde o clube está sediado (ex: SP, RJ).
      */
+    @NotBlank(message = "Sigla do estado é obrigatória")
+    @Pattern(regexp = "AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message = "Sigla do estado inválida")
     private String siglaEstado;
 
     /**
      * Data de fundação do clube.
      * Não pode ser uma data futura.
      */
+    @NotNull(message = "Data de criação é obrigatória")
+    @PastOrPresent(message = "Data de criação não pode ser futura")
     private LocalDate dataCriacao;
 
     /**
