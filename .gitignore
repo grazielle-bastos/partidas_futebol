@@ -51,10 +51,6 @@ build/
 *.war
 *.ear
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
 # Spring Boot devtools restart directory
 .spring-boot-devtools.jar
 .spring-boot-devtools/
@@ -76,6 +72,10 @@ notes/
 br/
 !src/test/java/br/
 !src/test/java/br/**
+
+# OS generated files
+.DS_Store
+Thumbs.db
 
 legal/
 resource-files/

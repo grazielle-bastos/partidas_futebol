@@ -419,6 +419,23 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
+/**
+     * Testa o método listarClubes do ClubeController com filtros opcionais e paginação.
+     *
+     * <p>
+     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e parâmetros de paginação.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes com filtros opcionais e paginação.
+     * @resultado Deve retornar status 200 OK e uma lista paginada de clubes.
+     */
     @Test
     public void testarListarClubesComFiltrosOpcionaisEPaginacao() throws Exception {
         ClubeResponseDto clubeDto1 = new ClubeResponseDto();
@@ -463,6 +480,23 @@ public class ClubeControllerTest {
 
     }
 
+/**
+     * Testa o método listarClubes do ClubeController com filtros opcionais sem paginação.
+     *
+     * <p>
+     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e não utiliza paginação.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista-sem-paginacao).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes com filtros opcionais sem paginação.
+     * @resultado Deve retornar status 200 OK e uma lista completa de clubes.
+     */
     @Test
     public void testarListarClubesComFiltrosOpcionaisSemPaginacao() throws Exception {
         ClubeResponseDto clubeDto1 = new ClubeResponseDto();
@@ -503,33 +537,23 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-    @Test
-    public void testarListarClubesComFiltrosOpcionaisSemPaginacaoComSizeMax() throws Exception {
-        ClubeResponseDto clubeDto1 = new ClubeResponseDto(1L, "Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
-        ClubeResponseDto clubeDto2 = new ClubeResponseDto(2L, "Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
-
-        List<ClubeResponseDto> clubesList = List.of(clubeDto1, clubeDto2);
-
-        Mockito.when(clubeService.listarClubes(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
-                .thenReturn(clubesList);
-
-        ResultActions response = mockMvc.perform(get("/clube/lista-sem-paginacao")
-                .param("size", String.valueOf(Integer.MAX_VALUE))
-                .accept(MediaType.APPLICATION_JSON));
-
-        response.andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].nome").value("Palmeiras"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].nome").value("Corinthians"))
-                .andDo(print());
-
-    }
-
+/**
+     * Testa o método listarClubes do ClubeController com filtros opcionais sem paginação, retornando uma lista vazia.
+     *
+     * <p>
+     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e não utiliza paginação, mas não encontra clubes.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista-sem-paginacao).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e uma lista vazia.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes com filtros opcionais sem paginação e lista vazia.
+     * @resultado Deve retornar status 200 OK e uma lista vazia de clubes.
+     */
     @Test
     public void testarListarClubesComFiltrosOpcionaisSemPaginacaoVazia() throws Exception {
         Mockito.when(clubeService.listarClubes(
@@ -553,6 +577,23 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
+/**
+     * Testa o método listarClubes do ClubeController com ordenação.
+     *
+     * <p>
+     * Cenário: Recebe parâmetros de ordenação e retorna a lista de clubes ordenada.
+     * </p>
+     *
+     * <b>Etapas do teste:</b>
+     * <ul>
+     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista).</li>
+     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes ordenada.</li>
+     * </ul>
+     *
+     * @cenario Listagem de clubes com ordenação.
+     * @resultado Deve retornar status 200 OK e uma lista de clubes ordenada pelo nome.
+     */
     @Test
     public void testarListarClubesComOrdenacao() throws Exception {
         List<ClubeResponseDto> clubesOrdenados = List.of(

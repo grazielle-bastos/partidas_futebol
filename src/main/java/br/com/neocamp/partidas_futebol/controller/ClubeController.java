@@ -136,18 +136,12 @@ public class ClubeController {
             @RequestParam(required = false) Boolean ativo,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        if (pageable.getPageSize() == Integer.MAX_VALUE) {
-            List<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(clubes);
-        } else {
             Page<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo, pageable);
+
             return ResponseEntity.status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(clubes);
         }
-    }
 
     /**
      * Lista clubes sem suporte à paginação.

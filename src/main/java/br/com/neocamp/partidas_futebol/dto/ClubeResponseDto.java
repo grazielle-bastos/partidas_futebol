@@ -56,6 +56,9 @@ public class ClubeResponseDto {
      * Necessário para frameworks como Spring e Jackson conseguirem criar o objeto automaticamente ao converter dados da API.
      * Mesmo sem lógica interna, ele permite que o sistema funcione corretamente ao receber dados da API.
      * </p>
+     * @requisito Permite a criação de instâncias do DTO sem precisar passar parâmetros, facilitando a desserialização de JSON.
+     * @fluxo Utilizado pelo Spring para criar o objeto automaticamente ao receber dados da API
+     * @implementacao Necessário para que o Spring e outras bibliotecas de serialização/deserialização consigam instanciar o DTO corretamente.
      */
     public ClubeResponseDto() {}
 

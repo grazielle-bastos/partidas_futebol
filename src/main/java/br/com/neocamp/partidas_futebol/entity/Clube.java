@@ -20,7 +20,7 @@ import java.time.LocalDate;
  * <b>Responsabilidades:</b>
  * <ul>
  *   <li>Mapear os dados do clube para o banco de dados usando JPA/Hibernate.</li>
- *   <li>Permitir operações de cadastro, busca, atualização e inativação de clubes.</li>
+ *   <li>Permitir operações de cadastro, busca, atualização, inativação, e listagem de clubes.</li>
  * </ul>
  *
  * <b>Campos:</b>
