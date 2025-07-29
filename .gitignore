@@ -74,6 +74,9 @@ notes/
 .github/
 
 br/
+!src/test/java/br/
+!src/test/java/br/**
+
 legal/
 resource-files/
 resources/
