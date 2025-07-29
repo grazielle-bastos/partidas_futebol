@@ -7,7 +7,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,33 +115,61 @@ public class ClubeController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    /**
-     * Lista clubes com filtros opcionais e suporte à paginação.
-     *
-     * @requisito Requisito_Funcional-05: Listar clubes
-     * @fluxo Recebe filtros opcionais (nome, sigla do estado, ativo) e parâmetros de paginação, chama o service para buscar os clubes e retorna a lista ou página de resultados.
-     * @implementacao Utiliza ClubeService para lógica de busca, suporta tanto listagem completa quanto paginada, e ResponseEntity para resposta HTTP.
-     * @param nome (opcional) Filtro pelo nome do clube.
-     * @param siglaEstado (opcional) Filtro pela sigla do estado do clube.
-     * @param ativo (opcional) Filtro pela situação do clube (ativo/inativo).
-     * @param pageable Parâmetros de paginação e ordenação.
-     * @return Lista ou página de ClubeResponseDto com status 200 OK.
-     */
+/**
+ * Lista clubes com filtros opcionais e suporte à paginação.
+ *
+ * @requisito Requisito_Funcional-05: Listar clubes
+ * @fluxo Recebe filtros opcionais (nome, sigla do estado, ativo) e parâmetros de paginação, chama o service para buscar os clubes e retorna a lista ou página de resultados.
+ * @implementacao Utiliza ClubeService para lógica de busca, suporta tanto listagem completa quanto paginada, e ResponseEntity para resposta HTTP.
+ * <b>Incremento:</b> O método retorna uma lista completa se o pageSize for Integer.MAX_VALUE, ou uma página paginada caso contrário.
+ * @param nome (opcional) Filtro pelo nome do clube.
+ * @param siglaEstado (opcional) Filtro pela sigla do estado do clube.
+ * @param ativo (opcional) Filtro pela situação do clube (ativo/inativo).
+ * @param pageable Parâmetros de paginação e ordenação.
+ * @return Lista ou página de ClubeResponseDto com status 200 OK.
+ */
     @GetMapping("/lista")
     public ResponseEntity<?> listarClubes(
             @RequestParam(required = false)
             String nome,
             @RequestParam(required = false) String siglaEstado,
             @RequestParam(required = false) Boolean ativo,
-            Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable
     ) {
         if (pageable.getPageSize() == Integer.MAX_VALUE) {
             List<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo);
-            return ResponseEntity.status(HttpStatus.OK).body(clubes);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(clubes);
         } else {
             Page<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo, pageable);
-            return ResponseEntity.status(HttpStatus.OK).body(clubes);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(clubes);
         }
+    }
+
+    /**
+     * Lista clubes sem suporte à paginação.
+     *
+     * @requisito Requisito_Funcional-05: Listar clubes
+     * @fluxo Recebe filtros opcionais (nome, sigla do estado, ativo), chama o service para buscar os clubes e retorna a lista de resultados.
+     * @implementacao Utiliza ClubeService para lógica de busca e ResponseEntity para resposta HTTP.
+     * @param nome (opcional) Filtro pelo nome do clube.
+     * @param siglaEstado (opcional) Filtro pela sigla do estado do clube.
+     * @param ativo (opcional) Filtro pela situação do clube (ativo/inativo).
+     * @return Lista de ClubeResponseDto com status 200 OK.
+     */
+    @GetMapping("/lista-sem-paginacao")
+    public ResponseEntity<List<ClubeResponseDto>> listarClubesSemPaginacao(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String siglaEstado,
+            @RequestParam(required = false) Boolean ativo
+    ) {
+        List<ClubeResponseDto> clubes = clubeService.listarClubes(nome, siglaEstado, ativo);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(clubes);
     }
 
 }
