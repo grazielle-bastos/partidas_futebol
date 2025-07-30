@@ -5,10 +5,14 @@ import br.com.neocamp.partidas_futebol.dto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.entity.Estadio;
 import br.com.neocamp.partidas_futebol.repository.EstadioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -64,7 +68,7 @@ public class EstadioService {
      * @return EstadioResponseDto DTO com os dados do estádio cadastrado e status 201 CREATED.
      * @throws ResponseStatusException 400 BAD REQUEST para tentativa de cadastro sem os dados mínimos ou com nome inválido, 409 CONFLICT se já existir um estádio com o mesmo nome.
      */
-    public EstadioResponseDto salvar(EstadioRequestDto estadioDto) {
+    public EstadioResponseDto cadastrarEstadio(EstadioRequestDto estadioDto) {
 
         if (estadioDto.getNome() == null || estadioDto.getNome().trim().length() < 3) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome inválido: deve ter no mínimo 3 caracteres");
@@ -141,7 +145,29 @@ public class EstadioService {
 
     }
 
+    /**
+     * Lista todos os estádios ou filtra por nome, paginando os resultados.
+     *
+     * @requisito Requisito_Funcional-14: Listagem de estádios
+     * @fluxo Recebe um nome opcional para filtro e parâmetros de paginação, busca os estádios no repositório e retorna uma lista paginada de DTOs de resposta.
+     * @implementacao Utiliza o repositório para buscar os estádios com base no nome (se fornecido) e na paginação, converte as entidades para DTOs de resposta e retorna a lista paginada.
+     * @param nome Nome do estádio para filtro (opcional).
+     * @param pageable Parâmetros de paginação (página, tamanho, ordenação).
+     * @return Page<EstadioResponseDto> com os dados dos estádios encontrados.
+     */
+    public Page<EstadioResponseDto> listarEstadios(String nome, Pageable pageable) {
 
+        Page<Estadio> estadioPage;
+
+        if (nome != null) {
+            estadioPage = estadioRepository.findByNomeContainingIgnoreCase(nome.trim(), pageable);
+        } else {
+            estadioPage = estadioRepository.findAll(pageable);
+        }
+
+        return estadioPage.map(this::toResponseDto);
+
+    }
 
     /**
      * Converte uma entidade Estadio em um DTO de resposta EstadioResponseDto.
@@ -154,7 +180,10 @@ public class EstadioService {
      */
     private EstadioResponseDto toResponseDto(Estadio estadio) {
 
-        return new EstadioResponseDto(estadio.getId(), estadio.getNome());
+        return new EstadioResponseDto(
+                estadio.getId(),
+                estadio.getNome()
+        );
     }
 
 }

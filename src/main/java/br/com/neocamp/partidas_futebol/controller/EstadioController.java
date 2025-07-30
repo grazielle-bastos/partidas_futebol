@@ -4,7 +4,11 @@ import br.com.neocamp.partidas_futebol.dto.EstadioRequestDto;
 import br.com.neocamp.partidas_futebol.dto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.service.EstadioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,7 +59,7 @@ public class EstadioController {
      */
     @PostMapping
     public ResponseEntity<EstadioResponseDto> cadastrarEstadio(@RequestBody EstadioRequestDto estadioRequestDto) {
-        EstadioResponseDto estadioSalvo = estadioService.salvar(estadioRequestDto);
+        EstadioResponseDto estadioSalvo = estadioService.cadastrarEstadio(estadioRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(estadioSalvo);
         }
 
@@ -74,6 +78,44 @@ public class EstadioController {
         EstadioResponseDto estadio = estadioService.buscarPorId(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(estadio);
+    }
+
+    /**
+     * Atualiza os dados de um estádio existente.
+     *
+     * @requisito Requisito_Funcional-12: Editar um estádio
+     * @fluxo Recebe o ID do estádio pela URL e os novos dados atualizados via DTO, valida, atualiza no banco e retorna o estádio atualizado.
+     * @implementacao Utiliza EstadioService para lógica de negócio e ResponseEntity para resposta HTTP.
+     * @param id Identificador único do estádio a ser atualizado
+     * @param estadioAtualizado DTO contendo os novos dados do estádio a ser atualizado recebidos no corpo da requisição
+     * @return EstadioResponseDto/ResponseEntity com os dados do estádio atualizado (DTO) e status 200 OK
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<EstadioResponseDto> atualizarEstadio(@PathVariable Long id, @RequestBody EstadioRequestDto estadioAtualizado) {
+        EstadioResponseDto estadio = estadioService.atualizarPorId(id, estadioAtualizado);
+        return ResponseEntity.status(HttpStatus.OK).body(estadio);
+    }
+
+    /**
+     * Lista os estádios cadastrados com opção de filtro por nome e com suporte à paginação.
+     *
+     * @requisito Requisito_Funcional-14: Listagem de estádios
+     * @fluxo Recebe o nome do estádio como filtro opcional e parâmetros de pagina para paginação, chama o service para buscar os estádios no repository e retorna uma lista paginada de estádios.
+     * @implementacao Utiliza EstadioService para lógica de listagem e ResponseEntity para resposta HTTP.
+     * @param nome filtro opcional para buscar estádios por nome.
+     * @param pageable parâmetros de paginação, como número da página e tamanho da página.
+     * @return ResponseEntity com uma página de EstadioResponseDto contendo os dados dos estádios encontrados e status 200 OK.
+     */
+    @GetMapping("/lista")
+    public ResponseEntity<Page<EstadioResponseDto>> listarEstadios(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(estadioPage);
     }
 
 }

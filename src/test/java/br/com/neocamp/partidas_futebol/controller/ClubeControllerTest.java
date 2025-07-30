@@ -87,7 +87,7 @@ public class ClubeControllerTest {
      * @resultado Deve retornar status 201 CREATED e o DTO do clube salvo, com os dados preenchidos e ativo.
      */
     @Test
-    public void testarSalvarClubesComDadosValidos() throws Exception {
+    public void testarCadastrarClubesComDadosValidos() throws Exception {
         clubeRequestDto.setNome("Palmeiras");
         clubeRequestDto.setSiglaEstado("SP");
         clubeRequestDto.setDataCriacao(LocalDate.of(1914, 8, 26));
@@ -99,7 +99,7 @@ public class ClubeControllerTest {
         salvar.setDataCriacao(LocalDate.of(1914, 8, 26));
         salvar.setAtivo(true);
 
-        Mockito.when(clubeService.salvar(Mockito.any(ClubeRequestDto.class))).thenReturn(salvar);
+        Mockito.when(clubeService.cadastrarClube(Mockito.any(ClubeRequestDto.class))).thenReturn(salvar);
 
         String clubeJson = objectMapper.writeValueAsString(clubeRequestDto);
         ResultActions response = mockMvc.perform(post("/clube")
@@ -183,7 +183,7 @@ public class ClubeControllerTest {
         clubeRequestDto.setDataCriacao(LocalDate.of(1914, 8, 26));
         clubeRequestDto.setAtivo(true);
 
-        Mockito.when(clubeService.salvar(Mockito.any(ClubeRequestDto.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado"));
+        Mockito.when(clubeService.cadastrarClube(Mockito.any(ClubeRequestDto.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com o mesmo nome no mesmo estado"));
 
         response = mockMvc.perform(post("/clube")
                 .contentType(MediaType.APPLICATION_JSON)

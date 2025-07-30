@@ -66,7 +66,7 @@ public class ClubeController {
             description = "Endpoint para cadastrar um novo clube no sistema.")
     @PostMapping
     public ResponseEntity<ClubeResponseDto> cadastrarClubes(@Valid @RequestBody ClubeRequestDto clubeRequestDto) {
-        ClubeResponseDto clubeSalvo = clubeService.salvar(clubeRequestDto);
+        ClubeResponseDto clubeSalvo = clubeService.cadastrarClube(clubeRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clubeSalvo);
     }
 

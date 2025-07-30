@@ -1,7 +1,10 @@
 package br.com.neocamp.partidas_futebol.repository;
 
 import br.com.neocamp.partidas_futebol.entity.Estadio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 
 import java.util.Optional;
 
@@ -30,5 +33,21 @@ public interface EstadioRepository extends JpaRepository<Estadio, Long> {
      * @return Um Optional contendo o estádio encontrado, ou vazio se não existir.
      */
     Optional<Estadio> findByNome(String nome);
+
+    /**
+     * Busca estádios pelo nome (parcial, ignorando maiúsculas/minúsculas) e situação (ativo/inativo).
+     * @param nome Parte do nome do estádio para busca.
+     * @param pageable Parâmetros de paginação para a consulta.
+     * @return Uma página de estádios que atendem aos filtros.
+     */
+    Page<Estadio> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    /**
+     * Busca todos os estádios com paginação.
+     *
+     * @param pageable Parâmetros de paginação para a consulta.
+     * @return Uma página de todos os estádios no banco de dados.
+     */
+    Page<Estadio> findAll(Pageable pageable);
 
 }

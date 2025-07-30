@@ -121,45 +121,45 @@ public class ClubeServiceTest {
      * @resultado Deve lançar ResponseStatusException com status BAD_REQUEST.
      */
     @Test
-    public void testarSalvarClubeComDadosInvalidos() {
+    public void testarCadastrarClubeComDadosInvalidos() {
         clubeDto.setNome(null);
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
         clubeDto.setAtivo(true);
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setNome("");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setNome(" ");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setNome("A");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setNome("Palmeiras");
         clubeDto.setSiglaEstado(null);
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setSiglaEstado("");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setSiglaEstado(" ");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setSiglaEstado("XX");
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(null);
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setDataCriacao(LocalDate.now().plusDays(1));
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
 
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
         clubeDto.setAtivo(null);
-        assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
     }
 
 
@@ -174,7 +174,7 @@ public class ClubeServiceTest {
      * <b>Etapas do teste:</b>
      * <ul>
      *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (salvar).</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (cadastrarClube).</li>
      *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado.</li>
      * </ul>
      *
@@ -194,7 +194,7 @@ public class ClubeServiceTest {
         clubeSalvo.setId(1L);
         when(clubeRepository.save(any(Clube.class))).thenReturn(clubeSalvo);
 
-        ClubeResponseDto response = clubeService.salvar(clubeDto);
+        ClubeResponseDto response = clubeService.cadastrarClube(clubeDto);
 
         assertNotNull(response);
         assertEquals("Palmeiras", response.getNome());
@@ -215,7 +215,7 @@ public class ClubeServiceTest {
      * <b>Etapas do teste:</b>
      * <ul>
      *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (salvar).</li>
+     *   <li><b>Act:</b> Executa o método a ser testado (cadastrarClube).</li>
      *   <li><b>Assert:</b> Verifica se uma exceção é lançada com status 409 (CONFLICT).</li>
      * </ul>
      *
@@ -234,7 +234,7 @@ public class ClubeServiceTest {
 
         when(clubeRepository.findByNomeAndSiglaEstado(anyString(), anyString())).thenReturn(Optional.of(clubeExistente));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.salvar(clubeDto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.cadastrarClube(clubeDto));
         assertEquals (HttpStatus.CONFLICT, ex.getStatusCode());
     }
 
@@ -268,7 +268,7 @@ public class ClubeServiceTest {
         clubeSalvo.setId(1L);
         when(clubeRepository.findByNomeAndSiglaEstado(anyString(), anyString())).thenReturn(Optional.empty());
         when(clubeRepository.save(any(Clube.class))).thenReturn(clubeSalvo);
-        ClubeResponseDto response = clubeService.salvar(clubeDto);
+        ClubeResponseDto response = clubeService.cadastrarClube(clubeDto);
 
         assertNotNull(response);
         assertEquals("Palmeiras", response.getNome());

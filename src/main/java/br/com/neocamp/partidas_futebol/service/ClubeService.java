@@ -69,7 +69,7 @@ public class ClubeService {
      * @return ClubeResponseDto com os dados do clube cadastrado.
      * @throws ResponseStatusException 400 para dados inválidos, 409 para duplicidade.
      */
-    public ClubeResponseDto salvar(ClubeRequestDto clubeDto) {
+    public ClubeResponseDto cadastrarClube(ClubeRequestDto clubeDto) {
         if (clubeDto.getNome() == null || clubeDto.getNome().trim().isEmpty() || clubeDto.getSiglaEstado() == null || clubeDto.getSiglaEstado().trim().isEmpty() || clubeDto.getDataCriacao() == null  || clubeDto.getAtivo() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos são obrigatórios e não podem ser vazios");
         }
