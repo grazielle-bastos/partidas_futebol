@@ -103,7 +103,7 @@ public class ClubeServiceTest {
 
 
 /**
-     * Testa o método salvar do ClubeService para o caso em que os dados do clube são inválidos.
+     * Testa o método cadastrar do ClubeService para o caso em que os dados do clube são inválidos.
      *
      * <p>
      * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
@@ -182,7 +182,7 @@ public class ClubeServiceTest {
      * @resultado Deve retornar o DTO do clube salvo, com os dados preenchidos e ativo.
      */
     @Test
-    public void testarSalvarClubeComDadosValidos() {
+    public void testarCadastrarClubeComDadosValidos() {
         clubeDto.setNome("Palmeiras");
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
@@ -223,7 +223,7 @@ public class ClubeServiceTest {
      * @resultado Deve lançar ResponseStatusException com status CONFLICT.
      */
     @Test
-    public void testarSalvarClubeComDuplicidadeDeNomeESiglaEstado() {
+    public void testarCadastrarClubeComDuplicidadeDeNomeESiglaEstado() {
         clubeDto.setNome("Palmeiras");
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
@@ -258,7 +258,7 @@ public class ClubeServiceTest {
      * @resultado Clube salvo corretamente, com os dados preenchidos e ativo.
      */
     @Test
-    public void testarSalvarClubeSemDuplicidadeDeNomeESiglaEstado() {
+    public void testarCadastrarClubeSemDuplicidadeDeNomeESiglaEstado() {
         clubeDto.setNome("Palmeiras");
         clubeDto.setSiglaEstado("SP");
         clubeDto.setDataCriacao(LocalDate.of(1914, 8, 26));
@@ -326,6 +326,7 @@ public class ClubeServiceTest {
         Long id = 1L;
         Clube clube = new Clube("Palmeiras", "SP", LocalDate.of(1914, 8, 26), true);
         clube.setId(id);
+
         when(clubeRepository.findById(id)).thenReturn(Optional.of(clube));
 
         ClubeResponseDto response = clubeService.buscarPorId(id);

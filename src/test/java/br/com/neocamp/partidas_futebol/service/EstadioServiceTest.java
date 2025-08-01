@@ -73,7 +73,7 @@ public class EstadioServiceTest {
      * @resultado O estádio é cadastrado com sucesso e retornado como EstadioResponseDto.
      */
     @Test
-    public void testarCadastrarEstadioComSucesso() {
+    public void testarCadastrarEstadioComDadosValidos() {
 
         estadioRequestDto.setNome("Neo Química Arena");
 
@@ -116,11 +116,28 @@ public class EstadioServiceTest {
             ResponseStatusException.class,
             () -> estadioService.cadastrarEstadio(estadioRequestDto)
         );
+
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("Já existe um estádio com o mesmo nome", ex.getReason());
 
     }
 
+    /**
+     * Testa o método cadastrar do EstadioService para o caso de nome inválido.
+     *
+     * <p>
+     * Cenário: O usuário tenta cadastrar um estádio com um nome inválido (menor que 3 caracteres).
+     * </p>
+     *
+     *<b>Etapas do teste:</b>
+     * <ul>
+     *     <li><b>Arrange:</b> Configura o DTO com um nome inválido.</li>
+     *     <li><b>Act & Assert:</b> Chama o método cadastrarEstadio e espera que a exceção ResponseStatusException seja lançada.</li>
+     * </ul>
+     *
+     * @cenário O usuário tenta cadastrar um estádio com nome inválido.
+     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
+     */
     @Test
     public void testarCadastrarEstadioComNomeInvalido() {
 
@@ -130,12 +147,140 @@ public class EstadioServiceTest {
             ResponseStatusException.class,
             () -> estadioService.cadastrarEstadio(estadioRequestDto)
         );
+
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
         assertEquals("Nome inválido: deve ter no mínimo 3 caracteres", ex.getReason());
+
     }
 
-    //TODO CRIAR TESTES PARA OS DEMAIS MÉTODOS DO ESTADIOSERVICE
-    // Exemplo: CadastrarEstadio (Condição Null para total cobertura com retorno 400 BAD REQUEST), buscarPorId, atualizarPorId, listarEstadios, etc
+    /**
+     * Testa o método cadastrar do EstadioService para o caso de nome nulo.
+     *
+     * <p>
+     * Cenário: O usuário tenta cadastrar um estádio com o nome nulo.
+     * </p>
+     *
+     *<b>Etapas do teste:</b>
+     * <ul>
+     *     <li><b>Arrange:</b> Configura o DTO com nome nulo.</li>
+     *     <li><b>Act & Assert:</b> Chama o método cadastrarEstadio e espera que a exceção ResponseStatusException seja lançada.</li>
+     * </ul>
+     *
+     * @cenário O usuário tenta cadastrar um estádio com nome nulo.
+     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
+     */
+    @Test
+    public void testarCadastrarEstadioComNomeNulo() {
+
+        estadioRequestDto.setNome(null);
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> estadioService.cadastrarEstadio(estadioRequestDto)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertEquals("Nome inválido: deve ter no mínimo 3 caracteres", ex.getReason());
+
+    }
+
+    /**
+     * Testa o método buscarPorId do EstadioService para o caso de sucesso.
+     *
+     * <p>
+     * Cenário: O usuário busca um estádio pelo ID e o estádio existe no banco de dados, este método deve retornar os dados DTO do estádio encontrado.
+     * </p>
+     *
+     *<b>Etapas do teste:</b>
+     * <ul>
+     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar um estádio com o ID especificado.</li>
+     *     <li><b>Act:</b> Chama o método buscarPorId com o ID do estádio.</li>
+     *     <li><b>Assert:</b> Verifica se o DTO do estádio retornado tem os dados esperados.</li>
+     * </ul>
+     *
+     * @cenário O usuário busca um estádio pelo ID e o estádio existe.
+     * @resultado O método retorna um EstadioResponseDto com os dados corretos do estádio.
+     */
+    @Test
+    public void testarBuscarEstadioPorIdExistente() {
+
+        Long estadioId = 1L;
+        Estadio estadio = new Estadio("Neo Química Arena");
+
+        estadio.setId(estadioId);
+
+        when(estadioRepository.findById(estadioId)).thenReturn(Optional.of(estadio));
+
+        EstadioResponseDto estadioResponseDto = estadioService.buscarPorId(estadioId);
+
+        assertNotNull(estadioResponseDto);
+        assertEquals(estadioId, estadioResponseDto.getId());
+        assertEquals("Neo Química Arena", estadioResponseDto.getNome());
+
+    }
+
+    /**
+     * Testa o método buscarPorId do EstadioService para o caso em que o estádio não existe.
+     *
+     * <p>
+     * Cenário: O usuário busca um estádio pelo ID e o estádio não existe no banco de dados, este método deve lançar uma exceção ResponseStatusException com status 404 NOT FOUND.
+     * </p>
+     *
+     *<b>Etapas do teste:</b>
+     * <ul>
+     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar um Optional vazio.</li>
+     *     <li><b>Act:</b> Chama o método buscarPorId com um ID inexistente.</li>
+     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
+     * </ul>
+     *
+     * @cenário O usuário busca um estádio pelo ID e o estádio não existe.
+     * @resultado O método lança uma ResponseStatusException com status 404 NOT FOUND.
+     */
+    @Test
+    public void testarBuscarEstadioPorIdInexistente() {
+
+        Long estadioId = 99L;
+
+        when(estadioRepository.findById(estadioId)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class, () -> estadioService.buscarPorId(estadioId)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+        assertEquals("Estádio não encontrado", ex.getReason());
+
+    }
+
+    @Test
+    public void testarAtualizarEstadioComDadosValidos () {
+
+        Long estadioId = 1L;
+
+        Estadio estadioExistente = new Estadio("Neo Química Arena");
+        estadioExistente.setId(estadioId);
+
+        EstadioRequestDto estadioAtualizado = new EstadioRequestDto();
+        estadioAtualizado.setId(estadioId);
+        estadioAtualizado.setNome("Allianz Parque");
+
+        when(estadioRepository.findById(estadioId)).thenReturn(Optional.of(estadioExistente));
+        when(estadioRepository.findByNome("Neo Química Arena")).thenReturn(Optional.empty());
+
+        Estadio estadioSalvo = new Estadio("Allianz Parque");
+        estadioSalvo.setId(estadioId);
+        when(estadioRepository.save(any(Estadio.class))).thenReturn(estadioSalvo);
+
+        EstadioResponseDto estadioResponseDto = estadioService.atualizarPorId(estadioId, estadioAtualizado);
+
+        assertNotNull(estadioResponseDto);
+        assertEquals(estadioId, estadioResponseDto.getId());
+        assertEquals("Allianz Parque", estadioResponseDto.getNome());
+    }
+
+
+    //TODO CRIAR TESTES PARA OS DEMAIS MÉTODOS DO ESTADIOSERVICE E ESTADIOCONTROLLER
+    // Exemplo: CadastrarEstadio, buscarPorId, atualizarPorId, listarEstadios.
 
 
 }

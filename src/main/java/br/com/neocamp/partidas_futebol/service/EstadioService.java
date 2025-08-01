@@ -77,11 +77,11 @@ public class EstadioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com o mesmo nome");
         }
 
-        Estadio estadio = new Estadio(
-                estadioDto.getNome().trim()
-                );
+            Estadio estadio = new Estadio(
+                    estadioDto.getNome().trim()
+                    );
 
-        return toResponseDto(estadioRepository.save(estadio));
+            return toResponseDto(estadioRepository.save(estadio));
     }
 
     /**
