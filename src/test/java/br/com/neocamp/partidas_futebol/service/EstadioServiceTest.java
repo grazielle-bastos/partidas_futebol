@@ -616,8 +616,4 @@ public class EstadioServiceTest {
         verify(estadioRepository).findAll(pageable);
 
     }
-
-    //TODO CRIAR TESTES PARA OS MÉTODOS DO ESTADIOCONTROLLER
-    // Exemplo: CadastrarEstadio, buscarPorId, atualizarPorId, listarEstadios.
-
 }

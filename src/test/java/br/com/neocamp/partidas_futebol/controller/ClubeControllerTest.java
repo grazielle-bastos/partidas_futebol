@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 
@@ -42,6 +41,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * Testes contemplados:
  * - POST /clube: Testa cadastro com dados válidos e inválidos
+ * - GET /clube/{id}: Testa busca por ID existente e inexistente
+ * - PUT /clube/{id}: Testa atualização de clube existente e inexistente
+ * - DELETE /clube/{id}: Testa inativação de clube existente e inexistente
+ * - GET /clube/lista: Testa listagem de clubes com filtros opcionais
+ * - GET /clube/lista-sem-paginacao: Testa listagem de clubes sem paginação
+ * - GET /clube/lista com ordenação: Testa listagem de clubes com ordenação
  */
 @WebMvcTest(ClubeController.class)
 public class ClubeControllerTest {
