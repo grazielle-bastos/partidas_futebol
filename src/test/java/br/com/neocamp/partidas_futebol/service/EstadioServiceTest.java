@@ -22,59 +22,22 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Teste unitário para a classe EstadioService.
- * Utiliza Mockito para simular o comportamento do repositório de estádio.
- *
- * @requisito Testar as regras de negócio da camada de serviço EstadioService.
- * @fluxo Verifica se as operações de CRUD e outras lógicas estão funcionando corretamente.
- * @implementacao Utiliza Mockito para criar um mock do EstadioRepository e testar o EstadioService isoladamente.
- */
+
 @ExtendWith(SpringExtension.class)
 public class EstadioServiceTest {
 
-    /**
-     * Mock do repositório de estádio.
-     * Utilizado para simular o comportamento do repositório durante os testes.
-     */
+    
     @Mock
     private EstadioRepository estadioRepository;
 
-    /**
-     * Instância do serviço de estádio que será testada.
-     * A anotação @InjectMocks injeta o mock do repositório no serviço.
-     */
+    
     @InjectMocks
     private EstadioService estadioService;
 
-    /**
-     * Instância de EstadioRequestDto utilizada nos testes.
-     * Pode ser usada para criar ou atualizar dados de estádio durante os testes.
-     * Representa a requisição de dados para criação ou atualização de um estádio, enviado pelo cliente na requisição HTTP da API.
-     */
+    
     EstadioRequestDto estadioRequestDto = new EstadioRequestDto();
 
-    /**
-     * Testa o método cadastrar do EstadioService para o caso em que os dados do clube são válidos.
-     *
-     * <p>
-     * Cenário: O usuário tenta cadastrar um estádio com um nome válido.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *     <li><b>Act:</b> Chama o método cadastrarEstadio com o DTO de estádio.</li>
-     *     <li><b>Assert:</b>
-     *         Verifica se o estádio foi cadastrado corretamente, sem lançar exceções.
-     *         O teste deve passar se o método cadastrarEstadio não lançar nenhuma exceção e
-     *         o estádio for salvo corretamente no repositório.
-     *     </li>
-     * </ul>
-     *
-     * @cenário O usuário cadastra um estádio com nome válido e não duplicado.
-     * @resultado O estádio é cadastrado com sucesso e retornado como EstadioResponseDto.
-     */
+    
     @Test
     public void testarCadastrarEstadioComDadosValidos() {
 
@@ -92,22 +55,7 @@ public class EstadioServiceTest {
         assertEquals("Neo Química Arena", estadioResponseDto.getNome());
     }
 
-    /**
-     * Testa o método cadastrar do EstadioService para o caso de duplicidade de nome.
-     *
-     * <p>
-     * Cenário: O usuário tenta cadastrar um estádio com um nome que já existe no banco de dados.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o DTO com um nome duplicado, e configura o comportamento dos mocks</li>
-     *     <li><b>Act & Assert:</b> Chama o método cadastrarEstadio e espera que a exceção ResponseStatusException seja lançada.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta cadastrar um estádio com duplicidade de nome.
-     * @resultado O método lança uma ResponseStatusException com status 409 CONFLICT.
-     */
+    
     @Test
     public void testarCadastrarEstadioComDuplicidadeDeNome() {
 
@@ -125,22 +73,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método cadastrar do EstadioService para o caso de nome inválido.
-     *
-     * <p>
-     * Cenário: O usuário tenta cadastrar um estádio com um nome inválido (menor que 3 caracteres).
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o DTO com um nome inválido.</li>
-     *     <li><b>Act & Assert:</b> Chama o método cadastrarEstadio e espera que a exceção ResponseStatusException seja lançada.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta cadastrar um estádio com nome inválido.
-     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
-     */
+    
     @Test
     public void testarCadastrarEstadioComNomeInvalido() {
 
@@ -156,22 +89,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método cadastrar do EstadioService para o caso de nome nulo.
-     *
-     * <p>
-     * Cenário: O usuário tenta cadastrar um estádio com o nome nulo.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o DTO com nome nulo.</li>
-     *     <li><b>Act & Assert:</b> Chama o método cadastrarEstadio e espera que a exceção ResponseStatusException seja lançada.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta cadastrar um estádio com nome nulo.
-     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
-     */
+    
     @Test
     public void testarCadastrarEstadioComNomeNulo() {
 
@@ -187,23 +105,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método buscarPorId do EstadioService para o caso de sucesso.
-     *
-     * <p>
-     * Cenário: O usuário busca um estádio pelo ID e o estádio existe no banco de dados, este método deve retornar os dados DTO do estádio encontrado.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar um estádio com o ID especificado.</li>
-     *     <li><b>Act:</b> Chama o método buscarPorId com o ID do estádio.</li>
-     *     <li><b>Assert:</b> Verifica se o DTO do estádio retornado tem os dados esperados.</li>
-     * </ul>
-     *
-     * @cenário O usuário busca um estádio pelo ID e o estádio existe.
-     * @resultado O método retorna um EstadioResponseDto com os dados corretos do estádio.
-     */
+    
     @Test
     public void testarBuscarEstadioPorIdExistente() {
 
@@ -222,23 +124,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método buscarPorId do EstadioService para o caso em que o estádio não existe.
-     *
-     * <p>
-     * Cenário: O usuário busca um estádio pelo ID e o estádio não existe no banco de dados, este método deve lançar uma exceção ResponseStatusException com status 404 NOT FOUND.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar um Optional vazio.</li>
-     *     <li><b>Act:</b> Chama o método buscarPorId com um ID inexistente.</li>
-     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
-     * </ul>
-     *
-     * @cenário O usuário busca um estádio pelo ID e o estádio não existe.
-     * @resultado O método lança uma ResponseStatusException com status 404 NOT FOUND.
-     */
+    
     @Test
     public void testarBuscarEstadioPorIdInexistente() {
 
@@ -255,24 +141,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de sucesso.
-     *
-     * <p>
-     * Cenário: O usuário tenta atualizar um estádio existente com nome válido.
-     * O método deve retornar os dados atualizados do estádio como EstadioResponseDto.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar o estádio existente e simula a atualização.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com o ID do estádio e o DTO atualizado.</li>
-     *     <li><b>Assert:</b> Verifica se o DTO do estádio atualizado foi retornado corretamente.</li>
-     * </ul>
-     *
-     * @cenário O usuário atualiza um estádio existente com nome válido.
-     * @resultado O método retorna um EstadioResponseDto com o nome atualizado do estádio.
-     */
+    
     @Test
     public void testarAtualizarEstadioComNomeValido() {
 
@@ -299,22 +168,7 @@ public class EstadioServiceTest {
         assertEquals("Allianz Parque", estadioResponseDto.getNome());
     }
 
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de nome inválido.
-     *
-     * <p>
-     *     Cenário: O usuário tenta atualizar um estádio com um nome inválido (menor que 3 caracteres).
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar o estádio existente.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com o ID do estádio e o DTO atualizado com nome inválido.</li>
-     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
-     * </ul>
-     * @cenário O usuário tenta atualizar um estádio com nome inválido.
-     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
-     */
+    
     @Test
     public void testarAtualizarEstadioComNomeInvalido() {
 
@@ -336,23 +190,7 @@ public class EstadioServiceTest {
         assertEquals("Nome inválido: deve ter no mínimo 3 caracteres", ex.getReason());
     }
 
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de nome nulo.
-     *
-     * <p>
-     * Cenário: O usuário tenta atualizar um estádio com o nome nulo.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar o estádio existente.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com o ID do estádio e o DTO atualizado com nome nulo.</li>
-     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta atualizar um estádio com nome nulo.
-     * @resultado O método lança uma ResponseStatusException com status 400 BAD REQUEST.
-     */
+    
     @Test
     public void testarAtualizarEstadioComNomeNulo() {
 
@@ -373,23 +211,7 @@ public class EstadioServiceTest {
         assertEquals("Nome inválido: deve ter no mínimo 3 caracteres", ex.getReason());
 
     }
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de duplicidade de nome.
-     *
-     * <p>
-     * Cenário: O usuário tenta atualizar um estádio com um nome que já existe no banco de dados.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar o estádio existente e simula a duplicidade.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com o ID do estádio e o DTO atualizado com nome duplicado.</li>
-     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta atualizar um estádio com duplicidade de nome.
-     * @resultado O método lança uma ResponseStatusException com status 409 CONFLICT.
-     */
+    
     @Test
     public void testarAtualizarEstadioComDuplicidadeDeNome() {
 
@@ -417,23 +239,7 @@ public class EstadioServiceTest {
             assertEquals("Já existe um estádio com o mesmo nome", ex.getReason());
 
     }
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de sucesso ao atualizar com nome e ID iguais.
-     *
-     * <p>
-     * Cenário: O usuário tenta atualizar um estádio com o mesmo nome e ID, não deve ocorrer erro de duplicidade.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar o estádio existente.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com o ID e nome iguais.</li>
-     *     <li><b>Assert:</b> Verifica se o DTO do estádio atualizado foi retornado corretamente.</li>
-     * </ul>
-     *
-     * @cenário O usuário atualiza um estádio com nome e ID iguais.
-     * @resultado O método retorna um EstadioResponseDto com os dados do estádio atualizado.
-     */
+    
     @Test
     public void testarAtualizarEstadioComNomeEIdIgual() {
 
@@ -461,23 +267,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método atualizarPorId do EstadioService para o caso de ID inexistente.
-     *
-     * <p>
-     * Cenário: O usuário tenta atualizar um estádio com um ID que não existe no banco de dados.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar um Optional vazio.</li>
-     *     <li><b>Act:</b> Chama o método atualizarPorId com um ID inexistente.</li>
-     *     <li><b>Assert:</b> Verifica se a exceção ResponseStatusException é lançada com o status e mensagem corretos.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta atualizar um estádio com ID inexistente.
-     * @resultado O método lança uma ResponseStatusException com status 404 NOT FOUND.
-     */
+    
     @Test
     public void testarAtualizarEstadioComIdInexistente() {
 
@@ -498,23 +288,7 @@ public class EstadioServiceTest {
         assertEquals("Estádio não encontrado", ex.getReason());
 
     }
-    /**
-     * Testa o método listarEstadios do EstadioService sem filtro de nome.
-     *
-     * <p>
-     * Cenário: O usuário lista todos os estádios cadastrados sem aplicar filtro de nome.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar uma página de estádios.</li>
-     *     <li><b>Act:</b> Chama o método listarEstadios com nome nulo e parâmetros de paginação.</li>
-     *     <li><b>Assert:</b> Verifica se a lista de estádios retornada contém os dados esperados.</li>
-     * </ul>
-     *
-     * @cenário O usuário lista todos os estádios sem filtro de nome.
-     * @resultado O método retorna uma página de EstadioResponseDto com os dados dos estádios encontrados.
-     */
+    
     @Test
     public void testarListarTodosOsEstadiosSemOFiltroDeNome() {
 
@@ -544,23 +318,7 @@ public class EstadioServiceTest {
 
     }
 
-    /**
-     * Testa o método listarEstadios do EstadioService com filtro de nome.
-     *
-     * <p>
-     * Cenário: O usuário lista os estádios filtrando pelo nome.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar uma página de estádios filtrados pelo nome.</li>
-     *     <li><b>Act:</b> Chama o método listarEstadios com um filtro de nome e parâmetros de paginação.</li>
-     *     <li><b>Assert:</b> Verifica se a lista de estádios retornada contém os dados esperados.</li>
-     * </ul>
-     *
-     * @cenário O usuário lista os estádios filtrando pelo nome.
-     * @resultado O método retorna uma página de EstadioResponseDto com os dados dos estádios filtrados.
-     */
+    
     @Test
     public void testarListarEstadiosComFiltroDeNome() {
 
@@ -585,23 +343,7 @@ public class EstadioServiceTest {
         verify(estadioRepository).findByNomeContainingIgnoreCase(filtroNome, pageable);
     }
 
-    /**
-     * Testa o método listarEstadios do EstadioService quando não há estádios cadastrados.
-     *
-     * <p>
-     * Cenário: O usuário tenta listar os estádios, mas não há nenhum cadastrado.
-     * </p>
-     *
-     *<b>Etapas do teste:</b>
-     * <ul>
-     *     <li><b>Arrange:</b> Configura o mock do repositório para retornar uma página vazia.</li>
-     *     <li><b>Act:</b> Chama o método listarEstadios com nome nulo e parâmetros de paginação.</li>
-     *     <li><b>Assert:</b> Verifica se a página retornada está vazia.</li>
-     * </ul>
-     *
-     * @cenário O usuário tenta listar os estádios, mas não há nenhum cadastrado.
-     * @resultado O método retorna uma página vazia de EstadioResponseDto.
-     */
+    
     @Test
     public void testarListarComPaginaVaziaDeEstadios() {
 

@@ -33,21 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Classe de testes para o {@link ClubeController}.
- *
- * @requisito RF-01: Testar os endpoints de gerenciamento de clubes
- * @implementacao Utiliza MockMvc para simular requisições HTTP e verificar respostas
- *
- * Testes contemplados:
- * - POST /clube: Testa cadastro com dados válidos e inválidos
- * - GET /clube/{id}: Testa busca por ID existente e inexistente
- * - PUT /clube/{id}: Testa atualização de clube existente e inexistente
- * - DELETE /clube/{id}: Testa inativação de clube existente e inexistente
- * - GET /clube/lista: Testa listagem de clubes com filtros opcionais
- * - GET /clube/lista-sem-paginacao: Testa listagem de clubes sem paginação
- * - GET /clube/lista com ordenação: Testa listagem de clubes com ordenação
- */
+
 @WebMvcTest(ClubeController.class)
 public class ClubeControllerTest {
 
@@ -60,10 +46,7 @@ public class ClubeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    /**
-     * Configuração inicial para cada teste.
-     * Registra o módulo JavaTime no ObjectMapper para serialização de datas.
-     */
+    
     @BeforeEach
     void setUp() {
         objectMapper.registerModule(new JavaTimeModule());
@@ -73,24 +56,7 @@ public class ClubeControllerTest {
     ClubeRequestDto clubeRequestDto = new ClubeRequestDto();
     ClubeResponseDto salvar = new ClubeResponseDto();
 
-/**
-     * Testa o método salvar do ClubeController para o caso em que os dados do clube são válidos.
-     *
-     * <p>
-     * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
-     * Os dados são válidos (nome, sigla do estado, data de criação e situação preenchidos corretamente).
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (POST /clube).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 201 CREATED e o corpo da resposta.</li>
-     * </ul>
-     *
-     * @cenario Cadastro de clube com dados válidos.
-     * @resultado Deve retornar status 201 CREATED e o DTO do clube salvo, com os dados preenchidos e ativo.
-     */
+
     @Test
     public void testarCadastrarClubesComDadosValidos() throws Exception {
         clubeRequestDto.setNome("Palmeiras");
@@ -121,24 +87,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método salvar do ClubeService para o caso em que os dados do clube são inválidos.
-     *
-     * <p>
-     * Cenário: Recebe um DTO de clube com nome, sigla do estado, data de criação e situação ativo.
-     * Os dados são inválidos (nome nulo, sigla do estado nula, data de criação futura ou situação nula).
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (salvar).</li>
-     *   <li><b>Assert:</b> Verifica se uma exceção é lançada com status 400 (BAD_REQUEST).</li>
-     * </ul>
-     *
-     * @cenario Cadastro de clube com dados inválidos.
-     * @resultado Deve lançar ResponseStatusException com status BAD_REQUEST.
-     */
+
     @Test
     public void testarSalvarClubesComDadosInvalidos() throws Exception {
         // Nome curto
@@ -199,23 +148,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método buscarPorId do ClubeController para o caso em que o clube é encontrado.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube existente.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e o corpo da resposta.</li>
-     * </ul>
-     *
-     * @cenario Busca de clube por ID com sucesso.
-     * @resultado Deve retornar status 200 OK e o DTO do clube encontrado.
-     */
+
     @Test
     public void testarBuscarClubePorIdComSucesso() throws Exception {
         Long id = 1L;
@@ -242,23 +175,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método buscarPorId do ClubeController para o caso em que o clube não é encontrado.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube inexistente.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 404 NOT FOUND.</li>
-     * </ul>
-     *
-     * @cenario Busca de clube por ID inexistente.
-     * @resultado Deve retornar status 404 NOT FOUND.
-     */
+
     @Test
     public void testarBuscarClubePorIdInexistente() throws Exception {
         Long id = 99L;
@@ -272,23 +189,7 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-/**
-     * Testa o método atualizarPorId do ClubeController para o caso em que o clube é atualizado com sucesso.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube existente e um DTO de clube com dados válidos.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (PUT /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e o corpo da resposta.</li>
-     * </ul>
-     *
-     * @cenario Atualização de clube com sucesso.
-     * @resultado Deve retornar status 200 OK e o DTO do clube atualizado.
-     */
+
     @Test
     public void testarAtualizarClubeComSucesso() throws Exception {
         Long id = 1L;
@@ -324,23 +225,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método atualizarPorId do ClubeController para o caso em que o clube não é encontrado.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube inexistente e um DTO de clube com dados válidos.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (PUT /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 404 NOT FOUND.</li>
-     * </ul>
-     *
-     * @cenario Atualização de clube inexistente.
-     * @resultado Deve retornar status 404 NOT FOUND.
-     */
+
     @Test
     public void testarAtualizarClubeComIdInexistente() throws Exception {
         Long id = 99L;
@@ -366,23 +251,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método inativarClubePorId do ClubeController para o caso em que o clube é inativado com sucesso.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube existente.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (DELETE /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 204 NO CONTENT.</li>
-     * </ul>
-     *
-     * @cenario Inativação de clube com sucesso.
-     * @resultado Deve retornar status 204 NO CONTENT.
-     */
+
     @Test
     public void testarInativarClubeComIdExistente() throws Exception {
         Long id = 1L;
@@ -396,23 +265,7 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-/**
-     * Testa o método inativarClubePorId do ClubeController para o caso em que o clube não é encontrado.
-     *
-     * <p>
-     * Cenário: Recebe um ID de clube inexistente.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (DELETE /clube/{id}).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 404 NOT FOUND.</li>
-     * </ul>
-     *
-     * @cenario Inativação de clube inexistente.
-     * @resultado Deve retornar status 404 NOT FOUND.
-     */
+
     @Test
     public void testarInativarClubeComIdInexistente() throws Exception {
         Long id = 99L;
@@ -424,23 +277,7 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-/**
-     * Testa o método listarClubes do ClubeController com filtros opcionais e paginação.
-     *
-     * <p>
-     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e parâmetros de paginação.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes.</li>
-     * </ul>
-     *
-     * @cenario Listagem de clubes com filtros opcionais e paginação.
-     * @resultado Deve retornar status 200 OK e uma lista paginada de clubes.
-     */
+
     @Test
     public void testarListarClubesComFiltrosOpcionaisEPaginacao() throws Exception {
         ClubeResponseDto clubeDto1 = new ClubeResponseDto();
@@ -485,23 +322,7 @@ public class ClubeControllerTest {
 
     }
 
-/**
-     * Testa o método listarClubes do ClubeController com filtros opcionais sem paginação.
-     *
-     * <p>
-     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e não utiliza paginação.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista-sem-paginacao).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes.</li>
-     * </ul>
-     *
-     * @cenario Listagem de clubes com filtros opcionais sem paginação.
-     * @resultado Deve retornar status 200 OK e uma lista completa de clubes.
-     */
+
     @Test
     public void testarListarClubesComFiltrosOpcionaisSemPaginacao() throws Exception {
         ClubeResponseDto clubeDto1 = new ClubeResponseDto();
@@ -542,23 +363,7 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-/**
-     * Testa o método listarClubes do ClubeController com filtros opcionais sem paginação, retornando uma lista vazia.
-     *
-     * <p>
-     * Cenário: Recebe filtros opcionais (nome, sigla do estado, ativo) e não utiliza paginação, mas não encontra clubes.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista-sem-paginacao).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e uma lista vazia.</li>
-     * </ul>
-     *
-     * @cenario Listagem de clubes com filtros opcionais sem paginação e lista vazia.
-     * @resultado Deve retornar status 200 OK e uma lista vazia de clubes.
-     */
+
     @Test
     public void testarListarClubesComFiltrosOpcionaisSemPaginacaoVazia() throws Exception {
         Mockito.when(clubeService.listarClubes(
@@ -582,23 +387,7 @@ public class ClubeControllerTest {
                 .andDo(print());
     }
 
-/**
-     * Testa o método listarClubes do ClubeController com ordenação.
-     *
-     * <p>
-     * Cenário: Recebe parâmetros de ordenação e retorna a lista de clubes ordenada.
-     * </p>
-     *
-     * <b>Etapas do teste:</b>
-     * <ul>
-     *   <li><b>Arrange:</b> Prepara os dados de entrada e configura o comportamento dos mocks.</li>
-     *   <li><b>Act:</b> Executa o método a ser testado (GET /clube/lista).</li>
-     *   <li><b>Assert:</b> Verifica se o resultado está conforme o esperado, incluindo o status HTTP 200 OK e a lista de clubes ordenada.</li>
-     * </ul>
-     *
-     * @cenario Listagem de clubes com ordenação.
-     * @resultado Deve retornar status 200 OK e uma lista de clubes ordenada pelo nome.
-     */
+
     @Test
     public void testarListarClubesComOrdenacao() throws Exception {
         List<ClubeResponseDto> clubesOrdenados = List.of(
