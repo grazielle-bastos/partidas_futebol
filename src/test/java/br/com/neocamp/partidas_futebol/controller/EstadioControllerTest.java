@@ -65,6 +65,25 @@ public class EstadioControllerTest {
 
     }
 
+    @Test
+    public void testarCadastrarEstadioComNomeNulo() throws Exception {
+
+        estadioRequestDto.setNome(null);
+
+        estadioResponseDto.setId(1L);
+        estadioResponseDto.setNome(null);
+
+        String estadioRequestJson = objectMapper.writeValueAsString(estadioRequestDto);
+
+        ResultActions response = mockMvc.perform(post("/estadio")
+                .contentType("application/json")
+                .content(estadioRequestJson));
+
+        response.andExpect(status().isBadRequest())
+                .andDo(print());
+
+    }
+
 
 
 }

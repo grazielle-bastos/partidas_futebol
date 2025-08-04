@@ -3,6 +3,7 @@ package br.com.neocamp.partidas_futebol.controller;
 import br.com.neocamp.partidas_futebol.dto.EstadioRequestDto;
 import br.com.neocamp.partidas_futebol.dto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.service.EstadioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +28,9 @@ public class EstadioController {
         this.estadioService = estadioService;
     }
 
-    
+
     @PostMapping
-    public ResponseEntity<EstadioResponseDto> cadastrarEstadio(@RequestBody EstadioRequestDto estadioRequestDto) {
+    public ResponseEntity<EstadioResponseDto> cadastrarEstadio(@Valid @RequestBody EstadioRequestDto estadioRequestDto) {
         EstadioResponseDto estadioSalvo = estadioService.cadastrarEstadio(estadioRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(estadioSalvo);
         }

@@ -1,12 +1,15 @@
 package br.com.neocamp.partidas_futebol.dto;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class EstadioRequestDto {
 
-    
     private Long id;
 
-    
+    @NotBlank(message = "O campo nome não pode ser nulo")
+    @Size(min = 3, max = 100, message = "O nome do estádio deve ter entre 3 e 100 caracteres")
     private String nome;
 
     
