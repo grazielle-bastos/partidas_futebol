@@ -10,11 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -103,6 +106,20 @@ public class EstadioControllerTest {
 
     }
 
+    @Test
+    public void testarBuscarEstadioPorIdInexistente() throws Exception {
 
+        Long estadioId = 99L;
+
+        Mockito.when(estadioService.buscarPorId(estadioId))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado"));
+
+        ResultActions response = mockMvc.perform(get("/estadio/{id}", id)
+            .contentType("application/json"));
+
+        response.andExpect(status().isNotFound())
+                .andDo(print());
+
+    }
 
 }
