@@ -10,11 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -23,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.function.RequestPredicates.contentType;
+import static org.springframework.web.servlet.function.RequestPredicates.param;
 
 @WebMvcTest(EstadioController.class)
 public class EstadioControllerTest {
@@ -174,5 +180,46 @@ public class EstadioControllerTest {
                 .andDo(print());
 
     }
+
+    @Test
+    public void testarListarEstadiosComPaginacaoEFiltrosOpcionais() throws Exception {
+
+        EstadioResponseDto estadioDto1 = new EstadioResponseDto();
+        estadioDto1.setId(1L);
+        estadioDto1.setNome("Allianz Parque");
+
+        EstadioResponseDto estadioDto2 = new EstadioResponseDto();
+        estadioDto2.setId(2L);
+        estadioDto2.setNome("Maracanã");
+
+        EstadioResponseDto estadioDto3 = new EstadioResponseDto();
+        estadioDto3.setId(3L);
+        estadioDto3.setNome("Mineirão");
+
+        List<EstadioResponseDto> estadios = List.of(estadioDto1, estadioDto2, estadioDto3);
+        Page<EstadioResponseDto> estadiosPage = new PageImpl<>(estadios);
+
+        when(estadioService.listarEstadios(Mockito.anyString(), Mockito.any()))
+                .thenReturn(estadiosPage);
+
+        ResultActions response = mockMvc.perform(get("/estadio/lista")
+                .param("nome", "All")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sort", "nome,asc")
+                .contentType("application/json"));
+
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].nome").value("Allianz Parque"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].nome").value("Maracanã"))
+                .andExpect(jsonPath("$.content[2].id").value(3))
+                .andExpect(jsonPath("$.content[2].nome").value("Mineirão"))
+                .andDo(print());
+
+    }
+
+    //TODO: Implementar teste para listar estádios sem paginação e lista vazia, se necessário.
 
 }
