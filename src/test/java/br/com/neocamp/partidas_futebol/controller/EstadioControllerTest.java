@@ -18,8 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -119,6 +118,35 @@ public class EstadioControllerTest {
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
+
+    }
+
+    @Test
+    public void testarAtualizarEstadioComSucesso() throws Exception {
+
+        Long id = 1L;
+
+        estadioRequestDto.setId(id);
+        estadioRequestDto.setNome("MorumBIS");
+
+        estadioResponseDto.setId(2L);
+        estadioResponseDto.setNome("MorumBIS");
+
+        Mockito.when(estadioService.atualizarPorId(Mockito.eq(id), Mockito.any(EstadioRequestDto.class)))
+                .thenReturn(estadioResponseDto);
+
+        String estadioRequestJson = objectMapper.writeValueAsString(estadioRequestDto);
+
+        ResultActions response = mockMvc.perform(put("/estadio/{id}", id)
+                .contentType("application/json")
+                .content(estadioRequestJson)
+        );
+
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.nome").value("MorumBIS"))
+                .andDo(print());
+
 
     }
 
