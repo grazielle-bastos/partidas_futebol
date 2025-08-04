@@ -51,12 +51,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ClubeController.class)
 public class ClubeControllerTest {
 
+    /**
+     * MockMvc é usado para simular requisições HTTP e verificar as respostas.
+     * Permite testar os endpoints do controlador sem precisar de um servidor real.
+     */
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * MockitoBean é usado para criar um mock do ClubeService, que será injetado no ClubeController.
+     * Permite simular o comportamento do serviço sem precisar de uma implementação real.
+     */
     @MockitoBean
     private ClubeService clubeService;
 
+    /**
+     * ObjectMapper é usado para serializar e desserializar objetos Java em JSON.
+     * Configurado para usar o módulo JavaTimeModule para lidar com datas corretamente.
+     */
     @Autowired
     private ObjectMapper objectMapper;
 
