@@ -125,9 +125,10 @@ public class EstadioControllerTest {
     public void testarAtualizarEstadioComSucesso() throws Exception {
 
         Long id = 1L;
+        String nome = "MorumBIS";
 
         estadioRequestDto.setId(id);
-        estadioRequestDto.setNome("MorumBIS");
+        estadioRequestDto.setNome(nome);
 
         estadioResponseDto.setId(2L);
         estadioResponseDto.setNome("MorumBIS");
@@ -147,6 +148,30 @@ public class EstadioControllerTest {
                 .andExpect(jsonPath("$.nome").value("MorumBIS"))
                 .andDo(print());
 
+
+    }
+
+    @Test
+    public void testarAtualizarEstadioComIdInexistente() throws Exception {
+
+        Long id = 99L;
+        String nome = "Al";
+
+        estadioRequestDto.setId(id);
+        estadioRequestDto.setNome(nome);
+
+        Mockito.when(estadioService.atualizarPorId(Mockito.eq(id), Mockito.any(EstadioRequestDto.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado"));
+
+        String estadioRequestJson = objectMapper.writeValueAsString(estadioRequestDto);
+
+        ResultActions response = mockMvc.perform(put("/estadio/{id}", id)
+                .contentType("application/json")
+                .content(estadioRequestJson)
+        );
+
+        response.andExpect(status().isNotFound())
+                .andDo(print());
 
     }
 
