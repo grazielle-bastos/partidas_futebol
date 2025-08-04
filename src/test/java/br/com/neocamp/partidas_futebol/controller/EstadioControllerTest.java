@@ -15,10 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
 @WebMvcTest(EstadioController.class)
 public class EstadioControllerTest {
@@ -70,9 +72,6 @@ public class EstadioControllerTest {
 
         estadioRequestDto.setNome(null);
 
-        estadioResponseDto.setId(1L);
-        estadioResponseDto.setNome(null);
-
         String estadioRequestJson = objectMapper.writeValueAsString(estadioRequestDto);
 
         ResultActions response = mockMvc.perform(post("/estadio")
@@ -80,6 +79,26 @@ public class EstadioControllerTest {
                 .content(estadioRequestJson));
 
         response.andExpect(status().isBadRequest())
+                .andDo(print());
+
+    }
+
+    //TODO: Implementar outros testes para o método cadastrarEstadio, se necessário.
+    // Exemplo: testar retorno 400 BAD REQUEST com nome vazio, nome muito curto (menor do que 3 letras), e retorno 409 CONFLICT se o estádio já existir.
+
+    @Test
+    public void testarBuscarEstadioPorIdComSucesso() throws Exception {
+
+        estadioResponseDto.setId(1L);
+
+        when(estadioService.buscarPorId(1L))
+                .thenReturn(estadioResponseDto);
+
+        ResultActions response = mockMvc.perform(get("/estadio/1")
+                .contentType("application/json"));
+
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
                 .andDo(print());
 
     }
