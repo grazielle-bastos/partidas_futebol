@@ -1,7 +1,7 @@
 package br.com.neocamp.partidas_futebol.service;
 
-import br.com.neocamp.partidas_futebol.dto.ClubeRequestDto;
-import br.com.neocamp.partidas_futebol.dto.ClubeResponseDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeRequestDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeResponseDto;
 import br.com.neocamp.partidas_futebol.entity.Clube;
 import br.com.neocamp.partidas_futebol.repository.ClubeRepository;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package br.com.neocamp.partidas_futebol.controller;
 
-import br.com.neocamp.partidas_futebol.dto.EstadioRequestDto;
-import br.com.neocamp.partidas_futebol.dto.EstadioResponseDto;
+import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioRequestDto;
+import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.service.EstadioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 import static org.springframework.web.servlet.function.RequestPredicates.param;
 
 @WebMvcTest(EstadioController.class)

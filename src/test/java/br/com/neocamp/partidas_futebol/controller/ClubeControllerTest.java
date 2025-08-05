@@ -1,7 +1,7 @@
 package br.com.neocamp.partidas_futebol.controller;
 
-import br.com.neocamp.partidas_futebol.dto.ClubeRequestDto;
-import br.com.neocamp.partidas_futebol.dto.ClubeResponseDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeRequestDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeResponseDto;
 import br.com.neocamp.partidas_futebol.service.ClubeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

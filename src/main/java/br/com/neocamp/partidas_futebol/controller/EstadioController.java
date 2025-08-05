@@ -1,7 +1,7 @@
 package br.com.neocamp.partidas_futebol.controller;
 
-import br.com.neocamp.partidas_futebol.dto.EstadioRequestDto;
-import br.com.neocamp.partidas_futebol.dto.EstadioResponseDto;
+import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioRequestDto;
+import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.service.EstadioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

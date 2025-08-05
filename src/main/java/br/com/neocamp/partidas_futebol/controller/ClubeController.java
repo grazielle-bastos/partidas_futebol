@@ -1,7 +1,7 @@
 package br.com.neocamp.partidas_futebol.controller;
 
-import br.com.neocamp.partidas_futebol.dto.ClubeRequestDto;
-import br.com.neocamp.partidas_futebol.dto.ClubeResponseDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeRequestDto;
+import br.com.neocamp.partidas_futebol.dto.clubeDto.ClubeResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
