@@ -18,8 +18,14 @@ target/
 *.iws
 *.iml
 *.ipr
-out/
 
+/resource-files/
+/notes/
+/legal/
+.github/
+resources/
+script-dir/
+script-files/
 
 ### NetBeans ###
 /nbproject/private/
@@ -34,56 +40,4 @@ build/
 ### VS Code ###
 .vscode/
 
-# Compiled class files
-*.class
-
-# Log files
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# Spring Boot devtools restart directory
-.spring-boot-devtools.jar
-.spring-boot-devtools/
-
-# Environment/config files
-*.env
-
-# Arquivos de banco de dados locais
-*.h2.db
-*.mv.db
-*.derby.db
-*.sqlite
-*.db
-
-notes/
-
-.github/
-
-br/
-!src/test/java/br/
-!src/test/java/br/**
-
-# OS generated files
 .DS_Store
-Thumbs.db
-
-legal/
-resource-files/
-resources/
-script-dir/
-script-files/
-script.js
-search-page.js
-search.js
-stylesheet.css
-*.svg
