@@ -2,6 +2,9 @@ package br.com.neocamp.partidas_futebol.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Table(name = "estadio",
@@ -13,19 +16,20 @@ public class Estadio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
     @Column(nullable = false, length = 100, unique = true)
     private String nome;
 
-    
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "estadio")
+    private List<Partida> partidas = new ArrayList<>();
+
+
     public Estadio() {}
 
-    
     public Estadio(String nome) {
         this.nome = nome;
     }
 
-    
+
     public Estadio(Long id, String nome) {
         this.id = id;
         this.nome = nome;

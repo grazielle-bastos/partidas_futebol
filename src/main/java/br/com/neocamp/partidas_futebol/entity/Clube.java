@@ -1,13 +1,10 @@
 package br.com.neocamp.partidas_futebol.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -19,23 +16,25 @@ public class Clube {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
     @Column(nullable = false, length = 100)
     private String nome;
-
     
     @Column(name = "sigla_estado", nullable = false, length = 2)
     private String siglaEstado;
 
-    
     @Column(name = "data_criacao", nullable = false)
     private LocalDate dataCriacao;
 
-    
     @Column(nullable = false)
     private Boolean ativo;
 
-    
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "clubeMandante")
+    private List<Partida> partidasMandante = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "clubeVisitante")
+    private List<Partida> partidasVisitante = new ArrayList<>();
+
+
     public Clube(){}
 
     
@@ -103,6 +102,22 @@ public class Clube {
     
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public List<Partida> getPartidasMandante() {
+        return partidasMandante;
+    }
+
+    public void setPartidasMandante(List<Partida> partidas) {
+        this.partidasMandante = partidasMandante;
+    }
+
+    public List<Partida> getPartidasVisitante() {
+        return partidasVisitante;
+    }
+
+    public void setPartidasVisitante(List<Partida> partidas) {
+        this.partidasVisitante = partidasVisitante;
     }
 
 }

@@ -12,14 +12,13 @@ public class Partida {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partidaId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clube_mandante_id", referencedColumnName = "id", nullable = false)
     private Clube clubeMandante;
-    @Column(name = "clube_mandante_id", nullable = false)
-    private Long clubeMandanteId;
 
-    @Column(name = "clube_visitante_id", nullable = false)
-    private Long clubeVisitanteId;
+    @ManyToOne
+    @JoinColumn(name = "clube_visitante_id", referencedColumnName = "id", nullable = false)
+    private Clube clubeVisitante;
 
     @Column(name = "clube_mandante_gols", nullable = true)
     private Integer clubeMandanteGols;
@@ -27,8 +26,9 @@ public class Partida {
     @Column(name = "clube_visitante_gols", nullable = true)
     private Integer clubeVisitanteGols;
 
-    @Column(name = "estadio_id", nullable = false)
-    private Long estadioId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "estadio_id", referencedColumnName = "id", nullable = false)
+    private Estadio estadio;
 
     @Column(name = "data_hora", nullable = false)
     private LocalDateTime dataHora;
@@ -36,14 +36,13 @@ public class Partida {
 
     public Partida() {}
 
-    public Partida(Long partidaId, Clube clubeMandante, Long clubeMandanteId, Long clubeVisitanteId, Integer clubeMandanteGols, Integer clubeVisitanteGols, Long estadioId, LocalDateTime dataHora) {
+    public Partida(Long partidaId, Clube clubeMandante, Clube clubeVisitante, Integer clubeMandanteGols, Integer clubeVisitanteGols, Estadio estadio, LocalDateTime dataHora) {
         this.partidaId = partidaId;
         this.clubeMandante = clubeMandante;
-        this.clubeMandanteId = clubeMandanteId;
-        this.clubeVisitanteId = clubeVisitanteId;
+        this.clubeVisitante = clubeVisitante;
         this.clubeMandanteGols = clubeMandanteGols;
         this.clubeVisitanteGols = clubeVisitanteGols;
-        this.estadioId = estadioId;
+        this.estadio = estadio;
         this.dataHora = dataHora;
     }
 
@@ -64,20 +63,12 @@ public class Partida {
         this.clubeMandante = clubeMandante;
     }
 
-    public Long getClubeMandanteId() {
-        return clubeMandanteId;
+    public Clube getClubeVisitante() {
+        return clubeVisitante;
     }
 
-    public void setClubeMandanteId(Long clubeMandanteId) {
-        this.clubeMandanteId = clubeMandanteId;
-    }
-
-    public Long getClubeVisitanteId() {
-        return clubeVisitanteId;
-    }
-
-    public void setClubeVisitanteId(Long clubeVisitanteId) {
-        this.clubeVisitanteId = clubeVisitanteId;
+    public void setClubeVisitante(Clube clubeVisitante) {
+        this.clubeVisitante = clubeVisitante;
     }
 
     public Integer getClubeMandanteGols() {
@@ -96,12 +87,12 @@ public class Partida {
         this.clubeVisitanteGols = clubeVisitanteGols;
     }
 
-    public Long getEstadioId() {
-        return estadioId;
+    public Estadio getEstadio() {
+        return estadio;
     }
 
-    public void setEstadioId(Long estadioId) {
-        this.estadioId = estadioId;
+    public void setEstadio(Estadio estadio) {
+        this.estadio = estadio;
     }
 
     public LocalDateTime getDataHora() {
