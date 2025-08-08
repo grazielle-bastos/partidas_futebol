@@ -1,4 +1,4 @@
-package br.com.neocamp.partidas_futebol.controller;
+/**package br.com.neocamp.partidas_futebol.controller;
 
 import br.com.neocamp.partidas_futebol.dto.partidaDto.PartidaRequestDto;
 import br.com.neocamp.partidas_futebol.dto.partidaDto.PartidaResponseDto;
@@ -10,8 +10,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/partida")
@@ -71,4 +69,4 @@ public class PartidaController {
 
 
 
-}
+}*/

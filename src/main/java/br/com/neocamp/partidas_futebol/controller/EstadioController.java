@@ -3,11 +3,14 @@ package br.com.neocamp.partidas_futebol.controller;
 import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioRequestDto;
 import br.com.neocamp.partidas_futebol.dto.estadioDto.EstadioResponseDto;
 import br.com.neocamp.partidas_futebol.service.EstadioService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +58,9 @@ public class EstadioController {
     @GetMapping("/lista")
     public ResponseEntity<Page<EstadioResponseDto>> listarEstadios(
             @RequestParam(required = false) String nome,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10, sort = "id, asc") Pageable pageable
+    {
+
         Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, pageable);
 
         return ResponseEntity.status(HttpStatus.OK)
