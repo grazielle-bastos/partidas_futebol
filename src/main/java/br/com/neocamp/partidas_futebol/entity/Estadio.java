@@ -55,4 +55,12 @@ public class Estadio {
         this.nome = nome;
     }
 
+
+    public List<Partida> getPartidas(){
+        return partidas;
+    }
+
+    public void setPartidas(List<Partida> partidas) {
+        this.partidas = partidas;
+    }
 }
