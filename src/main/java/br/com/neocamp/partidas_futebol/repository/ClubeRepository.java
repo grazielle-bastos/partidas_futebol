@@ -12,7 +12,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface ClubeRepository extends JpaRepository<Clube, Long> {
 
-    
+    Optional<Clube> findByNome(String nome);
+
     List<Clube> findByNomeContainingIgnoreCaseAndSiglaEstadoAndAtivo(String nome, String siglaEstado, Boolean ativo);
 
     

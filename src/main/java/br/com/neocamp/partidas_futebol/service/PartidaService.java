@@ -49,12 +49,14 @@ public class PartidaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube mandante não encontrado");
         }
         var clubeMandante = clubeMandanteOptional.get();
-        
+        String nomeMandante = clubeMandante.getNome();
+
         var clubeVisitanteOptional = clubeRepository.findById(partidaRequestDto.getClubeVisitanteId());
         if (clubeVisitanteOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube visitante não encontrado");
         }
         var clubeVisitante = clubeVisitanteOptional.get();
+        String nomeVisitante = clubeVisitante.getNome();
 
         var estadioOptional = estadioRepository.findById(partidaRequestDto.getEstadioId());
         if (estadioOptional.isEmpty()) {
