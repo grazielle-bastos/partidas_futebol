@@ -1,4 +1,4 @@
-/**package br.com.neocamp.partidas_futebol.controller;
+package br.com.neocamp.partidas_futebol.controller;
 
 import br.com.neocamp.partidas_futebol.dto.partidaDto.PartidaRequestDto;
 import br.com.neocamp.partidas_futebol.dto.partidaDto.PartidaResponseDto;
@@ -29,7 +29,7 @@ public class PartidaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(partidaSalva);
     }
 
-    @GetMapping("/{id}")
+/**    @GetMapping("/{id}")
     public ResponseEntity<PartidaResponseDto> buscarPartidaPorId(@PathVariable Long id) {
 
         PartidaResponseDto partida = partidaService.buscarPorId(id);
@@ -68,5 +68,5 @@ public class PartidaController {
     }
 
 
-
-}*/
+ */
+}

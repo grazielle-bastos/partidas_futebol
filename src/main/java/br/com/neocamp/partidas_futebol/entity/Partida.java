@@ -36,6 +36,15 @@ public class Partida {
 
     public Partida() {}
 
+    public Partida(Clube clubeMandante, Clube clubeVisitante, Integer clubeMandanteGols, Integer clubeVisitanteGols, Estadio estadio, LocalDateTime dataHora) {
+        this.clubeMandante = clubeMandante;
+        this.clubeVisitante = clubeVisitante;
+        this.clubeMandanteGols = clubeMandanteGols;
+        this.clubeVisitanteGols = clubeVisitanteGols;
+        this.estadio = estadio;
+        this.dataHora = dataHora;
+    }
+
     public Partida(Long partidaId, Clube clubeMandante, Clube clubeVisitante, Integer clubeMandanteGols, Integer clubeVisitanteGols, Estadio estadio, LocalDateTime dataHora) {
         this.partidaId = partidaId;
         this.clubeMandante = clubeMandante;

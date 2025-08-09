@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -58,10 +59,14 @@ public class EstadioController {
     @GetMapping("/lista")
     public ResponseEntity<Page<EstadioResponseDto>> listarEstadios(
             @RequestParam(required = false) String nome,
-            @PageableDefault(size = 10, sort = "id, asc") Pageable pageable
+            @RequestParam(required = false, defaultValue = "10") int page,
+            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @RequestParam(required = false, defaultValue = "id") String sortBy
+            //@PageableDefault(size = 10, sort = "id, asc") Pageable pageable
+    )
     {
 
-        Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, pageable);
+        Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, PageRequest.of(pageNumber, page, Sort.Direction.ASC, sortBy));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
