@@ -47,10 +47,10 @@ public class PartidaService {
         Clube clubeVisitante = buscarClubeVisitante(clubeVisitanteId);
         Estadio estadio = buscarEstadio(estadioId);
         validarGolsNaoNegativos(clubeMandanteGols, clubeVisitanteGols);
-        validarDataHoraFutura(dataHora);
         LocalDateTime dataCriacaoMandante = clubeMandante.getDataCriacao().atStartOfDay();
         LocalDateTime dataCriacaoVisitante = clubeVisitante.getDataCriacao().atStartOfDay();
         validarDataHoraAnteriorDataCriacaoClubes(dataHora, dataCriacaoMandante, dataCriacaoVisitante);
+        validarDataHoraFutura(dataHora);
         validarClubesInativos(clubeMandante, clubeVisitante);
         validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
         validarPartidaComEstadioDisponivel(estadio, dataHora);
