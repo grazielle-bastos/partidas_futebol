@@ -29,15 +29,29 @@ public class PartidaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(partidaSalva);
     }
 
-/**    @GetMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PartidaResponseDto> buscarPartidaPorId(@PathVariable Long id) {
 
-        PartidaResponseDto partida = partidaService.buscarPorId(id);
+        PartidaResponseDto partida = partidaService.buscarPartidaPorId(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(partida);
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/lista")
+    public ResponseEntity<Page<PartidaResponseDto>> listarPartidas(
+            @RequestParam(required = false) Long clubeMandanteId,
+            @RequestParam(required = false) Long clubeVisitanteId,
+            @RequestParam(required = false) Long estadioId,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+
+        Page<PartidaResponseDto> partidas = partidaService.listarPartidas(clubeMandanteId, clubeVisitanteId, estadioId, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(partidas);
+    }
+
+/**    @PutMapping("/{id}")
     public ResponseEntity<PartidaResponseDto> atualizarPartida(@PathVariable Long id, @RequestBody PartidaRequestDto partidaAtualizada) {
 
         PartidaResponseDto partida = partidaService.atualizarPorId(id, partidaAtualizada);
@@ -51,20 +65,6 @@ public class PartidaController {
         partidaService.deletarPartidaPorId(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @GetMapping("/lista")
-    public ResponseEntity<Page<PartidaResponseDto>> listarPartidas(
-            @RequestParam(required = false) String clubeMandante,
-            @RequestParam(required = false) String clubeVisitante,
-            @RequestParam(required = false) String estadio,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-
-        Page<PartidaResponseDto> partidas = partidaService.listarPartidas(clubeMandante, clubeVisitante, estadio, pageable);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(partidas);
     }
 
 

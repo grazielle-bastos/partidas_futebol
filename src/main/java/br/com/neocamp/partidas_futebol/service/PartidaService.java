@@ -9,6 +9,8 @@ import br.com.neocamp.partidas_futebol.repository.ClubeRepository;
 import br.com.neocamp.partidas_futebol.repository.EstadioRepository;
 import br.com.neocamp.partidas_futebol.repository.PartidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,70 +31,6 @@ public class PartidaService {
         this.clubeRepository = clubeRepository;
         this.estadioRepository = estadioRepository;
     }
-
-    /**public PartidaResponseDto cadastrarPartida(PartidaRequestDto partidaRequestDto) {
-
-        if (partidaRequestDto.getClubeMandanteId() == null ||
-                partidaRequestDto.getClubeVisitanteId() == null ||
-                partidaRequestDto.getClubeMandanteGols() == null ||
-                partidaRequestDto.getClubeVisitanteGols() == null ||
-                partidaRequestDto.getEstadioId() == null ||
-                partidaRequestDto.getDataHora() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos são obrigatórios e não podem ser vazios");
-        }
-
-        if (partidaRequestDto.getClubeMandanteId().equals(partidaRequestDto.getClubeVisitanteId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Clube mandante e visitante não podem ser o mesmo");
-        }
-
-        var clubeMandanteOptional = clubeRepository.findById(partidaRequestDto.getClubeMandanteId());
-        if (clubeMandanteOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube mandante não encontrado");
-        }
-        var clubeMandante = clubeMandanteOptional.get();
-        String nomeMandante = clubeMandante.getNome();
-
-        var clubeVisitanteOptional = clubeRepository.findById(partidaRequestDto.getClubeVisitanteId());
-        if (clubeVisitanteOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube visitante não encontrado");
-        }
-        var clubeVisitante = clubeVisitanteOptional.get();
-        String nomeVisitante = clubeVisitante.getNome();
-
-        var estadioOptional = estadioRepository.findById(partidaRequestDto.getEstadioId());
-        if (estadioOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado");
-        }
-        var estadio = estadioOptional.get();
-
-        if (partidaRequestDto.getClubeMandanteGols() < 0 || partidaRequestDto.getClubeVisitanteGols() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gols não podem ser negativos");
-        }
-
-        if (partidaRequestDto.getDataHora().isBefore(java.time.LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data e hora da partida não podem ser no passado");
-        }
-
-    // TODO: Pendências de implementação no método cadastrarPartida:
-        // - Validar se a data/hora da partida não é anterior à data de criação dos clubes envolvidos (409 CONFLICT)
-        // - Impedir cadastro de partida com clube inativo (409 CONFLICT)
-        // - Verificar se algum clube já possui outra partida em menos de 48h (409 CONFLICT)
-        // - Garantir que o estádio não tenha outra partida no mesmo dia (409 CONFLICT)
-        // Consulte requisitos funcionais 6 e 7 no projeto para detalhes.
-        // Dica: Use métodos auxiliares para cada validação e trate as exceções conforme o padrão do projeto.
-
-        Partida partida = new Partida(
-
-                clubeMandante,
-                clubeVisitante,
-                partidaRequestDto.getClubeMandanteGols(),
-                partidaRequestDto.getClubeVisitanteGols(),
-                estadio,
-                partidaRequestDto.getDataHora()
-        );
-
-        return toResponseDto(partidaRepository.save(partida));
-    }**/
 
     public PartidaResponseDto cadastrarPartida(PartidaRequestDto partidaRequestDto) {
         Long clubeMandanteId = partidaRequestDto.getClubeMandanteId();
@@ -132,11 +70,11 @@ public class PartidaService {
 
     private void validarCamposObrigatorios(PartidaRequestDto partidaRequestDto) {
         if (partidaRequestDto.getClubeMandanteId() == null ||
-            partidaRequestDto.getClubeVisitanteId() == null ||
-            partidaRequestDto.getClubeMandanteGols() == null ||
-            partidaRequestDto.getClubeVisitanteGols() == null ||
-            partidaRequestDto.getEstadioId() == null ||
-            partidaRequestDto.getDataHora() == null) {
+                partidaRequestDto.getClubeVisitanteId() == null ||
+                partidaRequestDto.getClubeMandanteGols() == null ||
+                partidaRequestDto.getClubeVisitanteGols() == null ||
+                partidaRequestDto.getEstadioId() == null ||
+                partidaRequestDto.getDataHora() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos são obrigatórios e não podem ser vazios");
         }
     }
@@ -188,19 +126,19 @@ public class PartidaService {
     }
 
     private void validarIntervaloDePartidas(Clube mandante, Clube visitante, LocalDateTime dataHoraNovaPartida) {
-            List<Partida> partidasMandante = partidaRepository.findByClubeMandanteId(mandante.getId());
-            List<Partida> partidasVisitante = partidaRepository.findByClubeVisitanteId(visitante.getId());
+        List<Partida> partidasMandante = partidaRepository.findByClubeMandanteId(mandante.getId());
+        List<Partida> partidasVisitante = partidaRepository.findByClubeVisitanteId(visitante.getId());
 
-            for (Partida partida : partidasMandante) {
-                long diff = Math.abs(java.time.Duration.between(partida.getDataHora(), dataHoraNovaPartida).toHours());
-                if (diff < 48) {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Clube mandante já possui outra partida em menos de 48 horas");
-                }
+        for (Partida partida : partidasMandante) {
+            long diff = Math.abs(java.time.Duration.between(partida.getDataHora(), dataHoraNovaPartida).toHours());
+            if (diff < 48) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Clube mandante já possui outra partida em menos de 48 horas");
             }
+        }
 
-            for (Partida partida : partidasVisitante) {
-                long diff = Math.abs(java.time.Duration.between(partida.getDataHora(), dataHoraNovaPartida).toHours());
-                if (diff < 48) {
+        for (Partida partida : partidasVisitante) {
+            long diff = Math.abs(java.time.Duration.between(partida.getDataHora(), dataHoraNovaPartida).toHours());
+            if (diff < 48) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Clube visitante já possui outra partida em menos de 48 horas");
             }
         }
@@ -213,6 +151,117 @@ public class PartidaService {
             if (partida.getDataHora().toLocalDate().equals(dataHoraNovaPartida.toLocalDate())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Estádio já possui outra partida no mesmo dia");
             }
+        }
+    }
+
+
+    public PartidaResponseDto buscarPartidaPorId(Long id) {
+        Partida partida = partidaRepository.findById(id).orElse(null);
+
+        if (partida == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada");
+        }
+
+        return toResponseDto(partida);
+    }
+
+    public Page<PartidaResponseDto> listarPartidas(
+            Long clubeMandanteId,
+            Long clubeVisitanteId,
+            Long estadioId,
+            Pageable pageable) {
+
+        validarExistenciaDasEntidadesParaFiltrosDePartida(clubeMandanteId, clubeVisitanteId, estadioId);
+
+        Page<Partida> partidas = aplicarFiltrosPartida(clubeMandanteId, clubeVisitanteId, estadioId, pageable);
+
+        return partidas.map(this::toResponseDto);
+    }
+
+    private void validarExistenciaDasEntidadesParaFiltrosDePartida(
+            Long clubeMandanteId,
+            Long clubeVisitanteId,
+            Long estadioId) {
+        if (clubeMandanteId != null) {
+            validarExistenciaClubeMandante(clubeMandanteId);
+        }
+
+        if (clubeVisitanteId != null) {
+            validarExistenciaClubeVisitante(clubeVisitanteId);
+        }
+
+        if (estadioId != null) {
+            validarExistenciaEstadio(estadioId);
+        }
+    }
+
+    private Page<Partida> aplicarFiltrosPartida(Long clubeMandanteId, Long clubeVisitanteId, Long estadioId, Pageable pageable) {
+        if (clubeMandanteId != null && clubeVisitanteId != null && estadioId != null) {
+            return buscarPorTodosFiltros(clubeMandanteId, clubeVisitanteId, estadioId, pageable);
+        }
+        else if (clubeMandanteId != null && estadioId != null) {
+            return buscarPorFiltroMandanteEEstadio(clubeMandanteId, estadioId, pageable);
+        }
+        else if (clubeVisitanteId != null && estadioId != null) {
+            return buscarPorFiltroVisitanteEEstadio(clubeVisitanteId, estadioId, pageable);
+        }
+        else if (clubeMandanteId != null) {
+            return buscarPorFiltroMandante(clubeMandanteId, pageable);
+        }
+        else if (clubeVisitanteId != null) {
+            return buscarPorFiltroVisitante(clubeVisitanteId, pageable);
+        }
+        else if (estadioId != null) {
+            return buscarPorFiltroEstadio(estadioId, pageable);
+        }
+        else {
+            return buscarTodasPartidas(pageable);
+        }
+    }
+
+    private Page<Partida> buscarPorTodosFiltros(Long clubeMandanteId, Long clubeVisitanteId, Long estadioId, Pageable pageable) {
+        return partidaRepository.findByClubeMandanteIdAndClubeVisitanteIdAndEstadioId(clubeMandanteId, clubeVisitanteId, estadioId, pageable);
+    }
+
+    private Page<Partida> buscarPorFiltroMandanteEEstadio(Long mandanteId, Long estadioId, Pageable pageable) {
+        return partidaRepository.findByClubeMandanteIdAndEstadioId(mandanteId, estadioId, pageable);
+    }
+
+    private Page<Partida> buscarPorFiltroVisitanteEEstadio(Long visitanteId, Long estadioId, Pageable pageable) {
+        return partidaRepository.findByClubeVisitanteIdAndEstadioId(visitanteId, estadioId, pageable);
+    }
+
+    private Page<Partida> buscarPorFiltroMandante(Long mandanteId, Pageable pageable) {
+        return partidaRepository.findByClubeMandanteId(mandanteId, pageable);
+    }
+
+    private Page<Partida> buscarPorFiltroVisitante(Long visitanteId, Pageable pageable) {
+        return partidaRepository.findByClubeVisitanteId(visitanteId, pageable);
+    }
+
+    private Page<Partida> buscarPorFiltroEstadio(Long estadioId, Pageable pageable) {
+        return partidaRepository.findByEstadioId(estadioId, pageable);
+    }
+
+    private Page<Partida> buscarTodasPartidas(Pageable pageable) {
+        return partidaRepository.findAll(pageable);
+    }
+
+    private void validarExistenciaClubeMandante(Long clubeMandante) {
+        if (!clubeRepository.existsById(clubeMandante)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube mandante não encontrado");
+        }
+    }
+
+    private void validarExistenciaClubeVisitante(Long clubeVisitante) {
+        if (!clubeRepository.existsById(clubeVisitante)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube visitante não encontrado");
+        }
+    }
+
+    private void validarExistenciaEstadio(Long estadioId) {
+        if (!estadioRepository.existsById(estadioId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado");
         }
     }
 
