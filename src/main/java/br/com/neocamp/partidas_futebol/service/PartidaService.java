@@ -43,21 +43,21 @@ public class PartidaService {
 
         validarCamposObrigatorios(partidaRequestDto);
         validarClubesOponentesDiferentes(clubeMandanteId, clubeVisitanteId);
-        Clube mandante = buscarClube(clubeMandanteId, "mandante");
-        Clube visitante = buscarClube(clubeVisitanteId, "visitante");
+        Clube clubeMandante = buscarClubeMandante(clubeMandanteId);
+        Clube clubeVisitante = buscarClubeVisitante(clubeVisitanteId);
         Estadio estadio = buscarEstadio(estadioId);
         validarGolsNaoNegativos(clubeMandanteGols, clubeVisitanteGols);
         validarDataHoraFutura(dataHora);
-        LocalDateTime dataCriacaoMandante = mandante.getDataCriacao().atStartOfDay();
-        LocalDateTime dataCriacaoVisitante = visitante.getDataCriacao().atStartOfDay();
+        LocalDateTime dataCriacaoMandante = clubeMandante.getDataCriacao().atStartOfDay();
+        LocalDateTime dataCriacaoVisitante = clubeVisitante.getDataCriacao().atStartOfDay();
         validarDataHoraAnteriorDataCriacaoClubes(dataHora, dataCriacaoMandante, dataCriacaoVisitante);
-        validarClubesInativos(mandante, visitante);
-        validarIntervaloDePartidas(mandante, visitante, novaDataHora);
+        validarClubesInativos(clubeMandante, clubeVisitante);
+        validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
         validarPartidaComEstadioDisponivel(estadio, dataHora);
 
         Partida partida = new Partida();
-        partida.setClubeMandante(mandante);
-        partida.setClubeVisitante(visitante);
+        partida.setClubeMandante(clubeMandante);
+        partida.setClubeVisitante(clubeVisitante);
         partida.setClubeMandanteGols(partidaRequestDto.getClubeMandanteGols());
         partida.setClubeVisitanteGols(partidaRequestDto.getClubeVisitanteGols());
         partida.setEstadio(estadio);
@@ -91,6 +91,14 @@ public class PartidaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube " + tipoClube + " não encontrado");
         }
         return clube;
+    }
+
+    private Clube buscarClubeMandante(Long id) {
+        return buscarClube(id, "mandante");
+    }
+
+    private Clube buscarClubeVisitante(Long id) {
+        return buscarClube(id, "visitante");
     }
 
     private Estadio buscarEstadio(Long id) {
