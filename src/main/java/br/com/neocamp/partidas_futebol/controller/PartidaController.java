@@ -51,14 +51,15 @@ public class PartidaController {
                 .body(partidas);
     }
 
-/**    @PutMapping("/{id}")
-    public ResponseEntity<PartidaResponseDto> atualizarPartida(@PathVariable Long id, @RequestBody PartidaRequestDto partidaAtualizada) {
+    @PutMapping("/{id}")
+    public ResponseEntity<PartidaResponseDto> atualizarPartidaPorId(@PathVariable Long id, @RequestBody PartidaRequestDto partidaRequestDto) {
 
-        PartidaResponseDto partida = partidaService.atualizarPorId(id, partidaAtualizada);
+        PartidaResponseDto partida = partidaService.atualizarPartidaPorId(id, partidaRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(partida);
     }
 
+    /**
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPartida (@PathVariable Long id) {
 

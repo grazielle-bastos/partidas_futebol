@@ -33,6 +33,7 @@ public class PartidaService {
     }
 
     public PartidaResponseDto cadastrarPartida(PartidaRequestDto partidaRequestDto) {
+        // TODO: Refatorar extração dos dados do PartidaRequestDto para um método auxiliar e/ou classe interna para melhorar organização e reaproveitamento.
         Long clubeMandanteId = partidaRequestDto.getClubeMandanteId();
         Long clubeVisitanteId = partidaRequestDto.getClubeVisitanteId();
         Long estadioId = partidaRequestDto.getEstadioId();
@@ -115,15 +116,15 @@ public class PartidaService {
         }
     }
 
-    private void validarDataHoraFutura(LocalDateTime dataHora) {
-        if (dataHora.isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data e hora da partida não podem ser no passado");
-        }
-    }
-
     private void validarDataHoraAnteriorDataCriacaoClubes(LocalDateTime dataHora, LocalDateTime dataCriacaoMandante, LocalDateTime dataCriacaoVisitante) {
         if (dataHora.isBefore(dataCriacaoMandante) || dataHora.isBefore(dataCriacaoVisitante)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Data e hora da partida não podem ser anteriores à data de criação dos clubes envolvidos");
+        }
+    }
+
+    private void validarDataHoraFutura(LocalDateTime dataHora) {
+        if (dataHora.isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data e hora da partida não podem ser no passado");
         }
     }
 
@@ -172,6 +173,7 @@ public class PartidaService {
 
         return toResponseDto(partida);
     }
+
 
     public Page<PartidaResponseDto> listarPartidas(
             Long clubeMandanteId,
@@ -271,6 +273,46 @@ public class PartidaService {
         if (!estadioRepository.existsById(estadioId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado");
         }
+    }
+
+
+    public PartidaResponseDto atualizarPartidaPorId(Long id, PartidaRequestDto partidaRequestDto) {
+
+        Long clubeMandanteId = partidaRequestDto.getClubeMandanteId();
+        Long clubeVisitanteId = partidaRequestDto.getClubeVisitanteId();
+        Long estadioId = partidaRequestDto.getEstadioId();
+        Integer clubeMandanteGols = partidaRequestDto.getClubeMandanteGols();
+        Integer clubeVisitanteGols = partidaRequestDto.getClubeVisitanteGols();
+        LocalDateTime dataHora = partidaRequestDto.getDataHora();
+        LocalDateTime novaDataHora = partidaRequestDto.getDataHora();
+
+        buscarPartidaPorId(id);
+
+        validarClubesOponentesDiferentes(clubeMandanteId, clubeVisitanteId);
+        Clube clubeMandante = buscarClubeMandante(clubeMandanteId);
+        Clube clubeVisitante = buscarClubeVisitante(clubeVisitanteId);
+        Estadio estadio = buscarEstadio(estadioId);
+        validarGolsNaoNegativos(clubeMandanteGols, clubeVisitanteGols);
+        LocalDateTime dataCriacaoMandante = clubeMandante.getDataCriacao().atStartOfDay();
+        LocalDateTime dataCriacaoVisitante = clubeVisitante.getDataCriacao().atStartOfDay();
+        validarDataHoraAnteriorDataCriacaoClubes(dataHora, dataCriacaoMandante, dataCriacaoVisitante);
+        validarDataHoraFutura(dataHora);
+        validarClubesInativos(clubeMandante, clubeVisitante);
+        validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
+        validarPartidaComEstadioDisponivel(estadio, dataHora);
+
+        Partida partida = new Partida();
+        partida.setClubeMandante(clubeMandante);
+        partida.setClubeVisitante(clubeVisitante);
+        partida.setClubeMandanteGols(partidaRequestDto.getClubeMandanteGols());
+        partida.setClubeVisitanteGols(partidaRequestDto.getClubeVisitanteGols());
+        partida.setEstadio(estadio);
+        partida.setDataHora(partidaRequestDto.getDataHora());
+
+        Partida partidaAtualizada = partidaRepository.save(partida);
+
+        return toResponseDto(partidaAtualizada);
+
     }
 
 
