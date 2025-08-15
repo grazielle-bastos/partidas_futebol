@@ -44,15 +44,8 @@ public class PartidaService {
         LocalDateTime dataCriacaoMandante = clubeMandante.getDataCriacao().atStartOfDay();
         LocalDateTime dataCriacaoVisitante = clubeVisitante.getDataCriacao().atStartOfDay();
         LocalDateTime dataHora = partidaRequestDto.getDataHora();
-        LocalDateTime novaDataHora = partidaRequestDto.getDataHora();
 
-        validarCamposObrigatorios(partidaRequestDto);
-        validarClubesOponentesDiferentes(partidaRequestDto);
-        validarGolsNaoNegativos(partidaRequestDto);
-        validarDataHoraAnteriorDataCriacaoClubes(partidaRequestDto, dataCriacaoMandante, dataCriacaoVisitante);
-        validarClubesInativos(clubeMandante, clubeVisitante);
-        validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
-        validarPartidaComEstadioDisponivel(estadio, dataHora);
+        validarPartida(partidaRequestDto, dataCriacaoMandante, dataCriacaoVisitante, clubeMandante, clubeVisitante, estadio, dataHora);
 
         Partida partida = new Partida();
         partida.setClubeMandante(clubeMandante);
@@ -62,9 +55,7 @@ public class PartidaService {
         partida.setEstadio(estadio);
         partida.setDataHora(partidaRequestDto.getDataHora());
 
-        Partida partidaSalva = partidaRepository.save(partida);
-
-        return toResponseDto(partidaSalva);
+        return toResponseDto(partidaRepository.save(partida));
     }
 
     private void validarCamposObrigatorios(PartidaRequestDto partidaRequestDto) {
@@ -85,11 +76,8 @@ public class PartidaService {
     }
 
     private Estadio buscarEstadio(Long id) {
-        Estadio estadio = estadioRepository.findById(id).orElse(null);
-        if (estadio == null) {
-            throw new EntityNotFoundException("Estádio não encontrado");
-        }
-        return estadio;
+        return estadioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Estádio não encontrado"));
     }
 
     private void validarGolsNaoNegativos(PartidaRequestDto partidaRequestDto) {
@@ -254,9 +242,6 @@ public class PartidaService {
         Partida partidaExistente = partidaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Partida não encontrada"));
 
-        LocalDateTime dataHora = partidaRequestDto.getDataHora();
-        LocalDateTime novaDataHora = partidaRequestDto.getDataHora();
-
         Clube clubeMandante = clubeRepository.findById(partidaRequestDto.getClubeMandanteId())
                 .orElseThrow(() -> new EntityNotFoundException("Clube mandante não encontrado"));
         Clube clubeVisitante = clubeRepository.findById(partidaRequestDto.getClubeVisitanteId())
@@ -264,18 +249,12 @@ public class PartidaService {
         Estadio estadio = buscarEstadio(partidaRequestDto.getEstadioId());
         LocalDateTime dataCriacaoMandante = clubeMandante.getDataCriacao().atStartOfDay();
         LocalDateTime dataCriacaoVisitante = clubeVisitante.getDataCriacao().atStartOfDay();
+        LocalDateTime dataHora = partidaRequestDto.getDataHora();
 
-        validarClubesOponentesDiferentes(partidaRequestDto);
-        validarGolsNaoNegativos(partidaRequestDto);
-        validarDataHoraAnteriorDataCriacaoClubes(partidaRequestDto, dataCriacaoMandante, dataCriacaoVisitante);
-        validarClubesInativos(clubeMandante, clubeVisitante);
-        validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
-        validarPartidaComEstadioDisponivel(estadio, dataHora);
+        validarPartida(partidaRequestDto, dataCriacaoMandante, dataCriacaoVisitante, clubeMandante, clubeVisitante, estadio, dataHora);
 
-        partidaExistente.setClubeMandante(clubeRepository.findById(partidaRequestDto.getClubeMandanteId())
-                .orElseThrow(() -> new EntityNotFoundException("Clube mandante não encontrado")));
-        partidaExistente.setClubeVisitante(clubeRepository.findById(partidaRequestDto.getClubeVisitanteId())
-                .orElseThrow(() -> new EntityNotFoundException("Clube visitante não encontrado")));
+        partidaExistente.setClubeMandante(clubeMandante);
+        partidaExistente.setClubeVisitante(clubeVisitante);
         partidaExistente.setClubeMandanteGols(partidaRequestDto.getClubeMandanteGols());
         partidaExistente.setClubeVisitanteGols(partidaRequestDto.getClubeVisitanteGols());
         partidaExistente.setEstadio(estadio);
@@ -293,6 +272,16 @@ public class PartidaService {
         partidaRepository.delete(partida);
     }
 
+
+    private void validarPartida(PartidaRequestDto partidaRequestDto, LocalDateTime dataCriacaoMandante, LocalDateTime dataCriacaoVisitante, Clube clubeMandante, Clube clubeVisitante, Estadio estadio, LocalDateTime dataHora) {
+        validarCamposObrigatorios(partidaRequestDto);
+        validarClubesOponentesDiferentes(partidaRequestDto);
+        validarGolsNaoNegativos(partidaRequestDto);
+        validarDataHoraAnteriorDataCriacaoClubes(partidaRequestDto, dataCriacaoMandante, dataCriacaoVisitante);
+        validarClubesInativos(clubeMandante, clubeVisitante);
+        validarIntervaloDePartidas(clubeMandante, clubeVisitante, dataHora);
+        validarPartidaComEstadioDisponivel(estadio, dataHora);
+    }
 
     private PartidaResponseDto toResponseDto(Partida partida) {
 

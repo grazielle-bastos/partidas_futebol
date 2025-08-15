@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 public class PartidaRequestDto {
 
-    private Long partidaId;
-
     private Long clubeMandanteId;
 
     private Long clubeVisitanteId;
@@ -21,8 +19,7 @@ public class PartidaRequestDto {
 
     public PartidaRequestDto() {}
 
-    public PartidaRequestDto(Long partidaId, Long clubeMandanteId, Long clubeVisitanteId, Integer clubeMandanteGols, Integer clubeVisitanteGols, Long estadioId, LocalDateTime dataHora) {
-        this.partidaId = partidaId;
+    public PartidaRequestDto(Long clubeMandanteId, Long clubeVisitanteId, Integer clubeMandanteGols, Integer clubeVisitanteGols, Long estadioId, LocalDateTime dataHora) {
         this.clubeMandanteId = clubeMandanteId;
         this.clubeVisitanteId = clubeVisitanteId;
         this.clubeMandanteGols = clubeMandanteGols;
@@ -31,14 +28,6 @@ public class PartidaRequestDto {
         this.dataHora = dataHora;
     }
 
-
-    public Long getPartidaId() {
-        return partidaId;
-    }
-
-    public void setPartidaId(Long partidaId) {
-        this.partidaId = partidaId;
-    }
 
     public Long getClubeMandanteId() {
         return clubeMandanteId;
