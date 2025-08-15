@@ -14,9 +14,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +35,6 @@ public class PartidaService {
     }
 
     public PartidaResponseDto cadastrarPartida(PartidaRequestDto partidaRequestDto) {
-        // TODO: Refatorar extração dos dados do PartidaRequestDto para um método auxiliar e/ou classe interna para melhorar organização e reaproveitamento.
 
         Clube clubeMandante = clubeRepository.findById(partidaRequestDto.getClubeMandanteId())
                 .orElseThrow(() -> new EntityNotFoundException("Clube mandante não encontrado"));
@@ -274,7 +272,6 @@ public class PartidaService {
         validarIntervaloDePartidas(clubeMandante, clubeVisitante, novaDataHora);
         validarPartidaComEstadioDisponivel(estadio, dataHora);
 
-        Partida partida = new Partida();
         partidaExistente.setClubeMandante(clubeRepository.findById(partidaRequestDto.getClubeMandanteId())
                 .orElseThrow(() -> new EntityNotFoundException("Clube mandante não encontrado")));
         partidaExistente.setClubeVisitante(clubeRepository.findById(partidaRequestDto.getClubeVisitanteId())
@@ -286,6 +283,14 @@ public class PartidaService {
 
         return toResponseDto(partidaRepository.save(partidaExistente));
 
+    }
+
+
+    public void deletarPartidaPorId(Long id) {
+        Partida partida = partidaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Partida não encontrada"));
+
+        partidaRepository.delete(partida);
     }
 
 

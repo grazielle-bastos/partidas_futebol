@@ -59,15 +59,13 @@ public class PartidaController {
         return ResponseEntity.status(HttpStatus.OK).body(partida);
     }
 
-    /**
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPartida (@PathVariable Long id) {
+    public ResponseEntity<Void> deletarPartida(@PathVariable Long id) {
 
         partidaService.deletarPartidaPorId(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-
- */
 }
