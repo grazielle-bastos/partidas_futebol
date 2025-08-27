@@ -60,13 +60,13 @@ public class EstadioController {
     public ResponseEntity<Page<EstadioResponseDto>> listarEstadios(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false, defaultValue = "10") int page,
-            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @RequestParam(required = false, defaultValue = "0") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy
             //@PageableDefault(size = 10, sort = "id, asc") Pageable pageable
     )
     {
 
-        Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, PageRequest.of(pageNumber, page, Sort.Direction.ASC, sortBy));
+        Page<EstadioResponseDto> estadioPage = estadioService.listarEstadios(nome, PageRequest.of(page, size, Sort.Direction.ASC, sortBy));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
