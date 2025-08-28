@@ -59,6 +59,7 @@ class PartidaControllerTest {
                 .andExpect(jsonPath("$.clubeMandanteNome").value("Corinthians"))
                 .andDo(print());
 
+        verify(partidaService).buscarPartidaPorId(1L);
     }
 
     @Test
@@ -68,7 +69,9 @@ class PartidaControllerTest {
 
         mockMvc.perform(get("/partida/999"))
                 .andExpect(status().isNotFound())
-        .andDo(print());
+                .andDo(print());
+
+        verify(partidaService).buscarPartidaPorId(999L);
     }
 
 }
