@@ -22,6 +22,7 @@ import java.util.Optional;
 
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,9 +51,9 @@ class PartidaServiceTest {
 
     @BeforeEach
     void setUp() {
-        clubeMandante = new Clube(1L, "São Paulo Futebol Clube", "SP", LocalDate.of(1930, 1, 25), true);
+        clubeMandante = new Clube(1L, "Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
 
-        clubeVisitante = new Clube(2L, "Corinthians", "SP", LocalDate.of(1910, 9, 1), true);
+        clubeVisitante = new Clube(2L, "São Paulo Futebol Clube", "SP", LocalDate.of(1930, 1, 25), true);
 
         estadio = new Estadio(1L, "Neo Química Arena");
 
@@ -87,20 +88,6 @@ class PartidaServiceTest {
         partidaRequestDto.setEstadioId(1L);
         partidaRequestDto.setDataHora(LocalDateTime.of(2025, 1, 10, 15, 0));
 
-        clubeMandante = new Clube();
-        clubeMandante.setId(1L);
-        clubeMandante.setNome("Corinthians");
-        clubeMandante.setDataCriacao(LocalDate.of(1910, 9, 1));
-
-        clubeVisitante = new Clube();
-        clubeVisitante.setId(2L);
-        clubeVisitante.setNome("São Paulo Futebol Clube");
-        clubeVisitante.setDataCriacao(LocalDate.of(1914, 8, 25));
-
-        estadio = new Estadio();
-        estadio.setId(1L);
-        estadio.setNome("Neo Química Arena");
-
     }
 
     @Test
@@ -112,9 +99,9 @@ class PartidaServiceTest {
         assertNotNull(partidaResponse);
         assertEquals(1L, partidaResponse.getPartidaId());
         assertEquals(1L, partidaResponse.getClubeMandanteId());
-        assertEquals("São Paulo Futebol Clube", partidaResponse.getClubeMandanteNome());
+        assertEquals("Corinthians", partidaResponse.getClubeMandanteNome());
         assertEquals(2L, partidaResponse.getClubeVisitanteId());
-        assertEquals("Corinthians", partidaResponse.getClubeVisitanteNome());
+        assertEquals("São Paulo Futebol Clube", partidaResponse.getClubeVisitanteNome());
         assertEquals(2, partidaResponse.getClubeMandanteGols());
         assertEquals(1, partidaResponse.getClubeVisitanteGols());
         assertEquals(1L, partidaResponse.getEstadioId());
@@ -136,6 +123,42 @@ class PartidaServiceTest {
         assertEquals("Partida não encontrada", exception.getMessage());
 
         verify(partidaRepository).findById(999L);
+    }
+
+    @Test
+    void testarCadastrarPartida_Sucesso() {
+        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clubeMandante));
+        when(clubeRepository.findById(2L)).thenReturn(Optional.of(clubeVisitante));
+        when(estadioRepository.findById(1L)).thenReturn(Optional.of(estadio));
+
+        Partida partidaSalva = new Partida();
+        partidaSalva.setClubeMandante(clubeMandante);
+        partidaSalva.setClubeVisitante(clubeVisitante);
+        partidaSalva.setClubeMandanteGols(2);
+        partidaSalva.setClubeVisitanteGols(1);
+        partidaSalva.setEstadio(estadio);
+        partidaSalva.setDataHora(LocalDateTime.of(2025, 1, 10, 15, 0));
+
+        when(partidaRepository.save(any(Partida.class))).thenReturn(partidaSalva);
+
+        partidaResponse = partidaService.cadastrarPartida(partidaRequestDto);
+
+        assertNotNull(partidaResponse);
+        assertEquals(1L, partidaResponse.getClubeMandanteId());
+        assertEquals("Corinthians", partidaResponse.getClubeMandanteNome());
+        assertEquals(2L, partidaResponse.getClubeVisitanteId());
+        assertEquals("São Paulo Futebol Clube", partidaResponse.getClubeVisitanteNome());
+        assertEquals(2, partidaResponse.getClubeMandanteGols());
+        assertEquals(1, partidaResponse.getClubeVisitanteGols());
+        assertEquals(1L, partidaResponse.getEstadioId());
+        assertEquals("Neo Química Arena", partidaResponse.getEstadioNome());
+        assertEquals(LocalDateTime.of(2025, 1, 10, 15, 0), partidaResponse.getDataHora());
+
+        verify(partidaRepository).save(any(Partida.class));
+        verify(clubeRepository).findById(1L);
+        verify(clubeRepository).findById(2L);
+        verify(estadioRepository).findById(1L);
+
     }
 
 }
